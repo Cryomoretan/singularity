@@ -1,0 +1,4 @@
+[
+{"name": "runSimpleTask", "cat": "de.cmt.singularity.tasks.TasksTest", "ph": "X", "ts": 940555902634, "dur": 11532, "pid": -357602081, "tid": 3 },
+{"name": "runSimpleTask", "cat": "de.cmt.singularity.tasks.TasksTest", "ph": "X", "ts": 940646395162, "dur": 12224, "pid": 546961069, "tid": 3 },
+{"name": "runSimpleTask", "cat": "com.cmt.singularity.tasks.TasksTest", "ph": "X", "ts": 940672829096, "dur": 12882, "pid": -1814772219, "tid": 3 },

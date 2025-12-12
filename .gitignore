@@ -1,0 +1,40 @@
+# Compiled class file
+*.class
+
+# Log files
+/log/
+*.log
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# all built files
+/target/
+Thumbs.db
+
+
+# special project files
+*.version
+*local.dl
+*local.xml
+
+#blender and backup
+*.blend
+*.blend1
+*.blend2
+*.blend3
+*.blend4
+
+#substancepainter files
+*.spp
+*.spp.painter_lock
+*_autosave_0.spp
+*_autosave_1.spp
+*_autosave_2.spp

@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"de.cmt.singularity.tasks","l":"RunnableTask"},{"p":"de.cmt.singularity","l":"Singularity"},{"p":"de.cmt.singularity.tasks","l":"StandardTasks"},{"p":"de.cmt.singularity.tasks","l":"Task"},{"p":"de.cmt.singularity.tasks","l":"Tasks"}];updateSearchResults();
