@@ -3,7 +3,7 @@
 	<name>Singularity Engine</name>
 	<description>100% Java 3D Engine using Vulkan</description>
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>de.cmt</groupId>
+	<groupId>com.cmt</groupId>
 	<artifactId>singularity</artifactId>
 	<version>0.1</version>
 	<packaging>jar</packaging>
@@ -164,8 +164,8 @@
 				<configuration>
 					<!-- https://stackoverflow.com/questions/64688896/how-to-make-testng-print-detail-message-about-the-failure -->
 					<trimStackTrace>false</trimStackTrace>
-					<argLine>--add-modules de.cmt.singularity -Dfile.encoding=UTF-8</argLine>
-					<workingDirectory>${project.basedir}/data/</workingDirectory>
+					<argLine>--add-modules com.cmt.singularity -Dfile.encoding=UTF-8</argLine>
+					<workingDirectory>${project.basedir}</workingDirectory>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -208,10 +208,9 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>libs/</classpathPrefix>
-							<mainClass>de.cmt.singularity.Main</mainClass>
 						</manifest>
 						<manifestEntries>
-							<Automatic-Module-Name>de.cmt.singularity</Automatic-Module-Name>
+							<Automatic-Module-Name>com.cmt.singularity</Automatic-Module-Name>
 						</manifestEntries>
 					</archive>
 				</configuration>

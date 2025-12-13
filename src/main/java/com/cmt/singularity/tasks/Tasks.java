@@ -25,6 +25,9 @@
 //</editor-fold>
 package com.cmt.singularity.tasks;
 
+import java.util.Optional;
+import java.util.Set;
+
 /**
  *
  * @author Benjamin Schiller
@@ -32,11 +35,13 @@ package com.cmt.singularity.tasks;
 public interface Tasks
 {
 
-	Task asTask(Runnable runnable);
+	TaskGroup createTaskGroup(String name, int poolSize, int queueSize, boolean daemon);
 
-	Tasks parallel(Task... task);
+	Set<TaskGroup> getTaskGroups();
 
-	Tasks sequential(Task... task);
+	Optional<TaskGroup> getTaskGroupByName(String name);
 
-	Tasks join();
+	void join();
+
+	void endGracefully();
 }

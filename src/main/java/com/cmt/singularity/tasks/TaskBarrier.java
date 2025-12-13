@@ -25,13 +25,18 @@
 //</editor-fold>
 package com.cmt.singularity.tasks;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  *
  * @author Benjamin Schiller
  */
-@FunctionalInterface
-public interface Task
+public interface TaskBarrier
 {
 
-	void execute();
+	void await();
+
+	void await(long timeOut, TimeUnit unit);
+
+	void arrive();
 }

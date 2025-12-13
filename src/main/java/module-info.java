@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-module de.cmt.singularity
+module com.cmt.singularity
 {
 	requires java.desktop;
 	requires de.sft.log;

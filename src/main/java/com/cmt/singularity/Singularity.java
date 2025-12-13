@@ -34,5 +34,10 @@ import com.cmt.singularity.tasks.Tasks;
 public interface Singularity
 {
 
+	public static Singularity create()
+	{
+		return new StandardSingularity();
+	}
+
 	Tasks getTasks();
 }

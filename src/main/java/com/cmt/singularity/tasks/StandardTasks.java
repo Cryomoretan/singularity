@@ -27,121 +27,74 @@ package com.cmt.singularity.tasks;
 
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
-import java.util.Arrays;
-import java.util.UUID;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class StandardTasks implements Tasks, TaskContext
+public class StandardTasks implements Tasks
 {
 
 	@SuppressWarnings("unused")
 	private final static Logger log = LogManager.getLogger(StandardTasks.class.getName());
 
-	public final static int DEFAULT_POOL_SIZE = 8;
-	public final static int DEFAULT_QUEUE_SIZE = 100;
+	protected final Set<StandardTaskGroup> groups = new ConcurrentSkipListSet<>();
 
-	protected class Worker extends Thread
+	@Override
+	public TaskGroup createTaskGroup(String name, int poolSize, int queueSize, boolean daemon)
 	{
+		StandardTaskGroup group = new StandardTaskGroup(name, poolSize, queueSize, daemon);
 
-		protected final UUID id;
+		groups.add(group);
 
-		public Worker()
-		{
-			super();
-
-			id = UUID.randomUUID();
-			setName("Worker " + id);
-		}
-
-		@Override
-		public void run()
-		{
-			log.debug("Starting " + getName());
-
-			while (true) {
-
-				try {
-					Task task = queue.poll(100, TimeUnit.MILLISECONDS);
-
-					task.execute(StandardTasks.this);
-
-				} catch (InterruptedException ex) {
-
-					log.error(ex);
-
-					return;
-				}
-			}
-		}
-	}
-
-	protected final Worker[] workers;
-	protected final BlockingQueue<Task> queue;
-
-	public StandardTasks()
-	{
-		this(DEFAULT_POOL_SIZE, DEFAULT_QUEUE_SIZE);
-	}
-
-	@SuppressWarnings("CallToThreadStartDuringObjectConstruction")
-	public StandardTasks(int poolSize, int queueSize)
-	{
-		queue = new ArrayBlockingQueue(queueSize, false);
-
-		workers = new Worker[poolSize];
-
-		for (int i = 0; i < poolSize; ++i) {
-
-			workers[i] = new Worker();
-			workers[i].start();
-		}
+		return group;
 	}
 
 	@Override
-	public Task asTask(Runnable runnable)
+	public void join()
 	{
-		return new RunnableTask(runnable);
-	}
+		log.debug("join:enter");
 
-	@Override
-	public Tasks parallel(Task... tasks)
-	{
-		queue.addAll(Arrays.asList(tasks));
-
-		return this;
-	}
-
-	@Override
-	public Tasks sequential(Task... tasks)
-	{
-		queue.add(new SequentialTask(tasks));
-
-		return this;
-	}
-
-	@Override
-	public Tasks join()
-	{
-		synchronized (Thread.currentThread()) {
-			while (!queue.isEmpty()) {
-				try {
-					Thread.currentThread().wait(10);
-				} catch (InterruptedException ex) {
-					log.error(ex);
-					return this;
-				}
-			}
+		// Create copy to make sure the list does not change while iterating to make behavior easier to reason
+		for (TaskGroup group : new ArrayList<>(groups)) {
+			group.join();
 		}
 
-		return this;
+		log.debug("join:exit");
 	}
 
-	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
-	// "Getters/Setters" </editor-fold>
+	@Override
+	public void endGracefully()
+	{
+		log.debug("endGracefully:enter");
+
+		join();
+
+		// Create copy to make sure the list does not change while iterating to make behavior easier to reason
+		List<StandardTaskGroup> g = new ArrayList<>(groups);
+
+		TaskBarrier terminationBarrier = new StandardTaskBarrier(g.size());
+
+		for (StandardTaskGroup group : g) {
+			group.endGracefully(terminationBarrier);
+		}
+
+		terminationBarrier.await();
+
+		log.debug("endGracefully:exit");
+	}
+
+	@Override
+	public Optional<TaskGroup> getTaskGroupByName(String name)
+	{
+		return Optional.ofNullable((StandardTaskGroup) groups.stream().filter((tg) -> tg.getName().equals(name)).findAny().orElse(null));
+	}
+
+	@Override
+	public Set<TaskGroup> getTaskGroups()
+	{
+		return Collections.unmodifiableSet(groups);
+	}
 }

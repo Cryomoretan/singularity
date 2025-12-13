@@ -23,15 +23,35 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
+package com.cmt.singularity;
+
+import com.cmt.singularity.tasks.StandardTasks;
+import com.cmt.singularity.tasks.Tasks;
 
 /**
  *
  * @author Benjamin Schiller
  */
-@FunctionalInterface
-public interface Task
+public class StandardSingularity implements Singularity
 {
 
-	void execute();
+	protected Tasks tasks;
+
+	public StandardSingularity()
+	{
+		tasks = new StandardTasks();
+	}
+
+	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
+	@Override
+	public Tasks getTasks()
+	{
+		return tasks;
+	}
+
+	public void setTasks(Tasks tasks)
+	{
+		this.tasks = tasks;
+	}
+	// "Getters/Setters" </editor-fold>
 }

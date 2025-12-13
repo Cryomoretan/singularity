@@ -25,11 +25,58 @@
 //</editor-fold>
 package com.cmt.singularity.tasks;
 
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 /**
  *
  * @author Benjamin Schiller
  */
-public interface TaskContext
+public class StandardTaskBarrier implements TaskBarrier
 {
 
+	@SuppressWarnings("unused")
+	private final static Logger log = LogManager.getLogger(StandardTasks.class.getName());
+
+	protected final CountDownLatch latch;
+
+	public StandardTaskBarrier(int count)
+	{
+		latch = new CountDownLatch(count);
+	}
+
+	@Override
+	public void await()
+	{
+		try {
+			latch.await();
+		} catch (InterruptedException ex) {
+			log.error(ex);
+		}
+	}
+
+	@Override
+	public void await(long timeOut, TimeUnit unit)
+	{
+		try {
+			latch.await(timeOut, unit);
+		} catch (InterruptedException ex) {
+			log.error(ex);
+		}
+	}
+
+	@Override
+	public void arrive()
+	{
+		latch.countDown();
+	}
+
+	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
+	public CountDownLatch getLatch()
+	{
+		return latch;
+	}
+	// "Getters/Setters" </editor-fold>
 }

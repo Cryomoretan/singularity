@@ -25,12 +25,18 @@
 //</editor-fold>
 package com.cmt.singularity.tasks;
 
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
+
 /**
  *
  * @author Benjamin Schiller
  */
 public class SequentialTask implements Task
 {
+
+	@SuppressWarnings("unused")
+	private final static Logger log = LogManager.getLogger(SequentialTask.class.getName());
 
 	protected final Task[] tasks;
 
@@ -40,11 +46,26 @@ public class SequentialTask implements Task
 	}
 
 	@Override
-	public void execute(TaskContext context)
+	public void execute()
 	{
+		log.debug("execute:enter");
+		log.start("execute");
+
 		for (Task task : tasks) {
-			task.execute(context);
+
+			String taskLog = task.getClass().getName() + ".execute";
+
+			log.debug(taskLog + ":enter");
+			log.start(taskLog);
+
+			task.execute();
+
+			log.stopDebug(taskLog);
+			log.debug(taskLog + ":exit");
 		}
+
+		log.stopDebug("execute");
+		log.debug("execute:exit");
 	}
 
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">

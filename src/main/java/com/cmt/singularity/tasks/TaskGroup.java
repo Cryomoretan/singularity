@@ -29,9 +29,20 @@ package com.cmt.singularity.tasks;
  *
  * @author Benjamin Schiller
  */
-@FunctionalInterface
-public interface Task
+public interface TaskGroup
 {
 
-	void execute();
+	String getName();
+
+	Task asTask(Runnable runnable);
+
+	TaskGroup parallel(Task... tasks);
+
+	TaskGroup sequential(Task... tasks);
+
+	TaskBarrier parallelBefore(Task... tasks);
+
+	TaskGroup parallelAfter(TaskBarrier barrier, Task... tasks);
+
+	TaskGroup join();
 }

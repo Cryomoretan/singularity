@@ -40,7 +40,7 @@ public class RunnableTask implements Task
 	}
 
 	@Override
-	public void execute(TaskContext context)
+	public void execute()
 	{
 		runnable.run();
 	}
