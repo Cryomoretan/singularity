@@ -27,6 +27,10 @@ jobs:
         java-version: '24'
         distribution: 'temurin'
         cache: maven
+    - uses: whelk-io/maven-settings-xml-action@v21
+      with:
+        repositories: '[{ "id": "github", "url": "https://maven.pkg.github.com/studio42gmbh/*" }]'
+        servers: '[{ "id": "github", "username": "${env.USER}", "password": "${{ secrets.GITHUB_TOKEN }}" }]'
     - name: Build with Maven
       run: mvn -B package --file pom.xml
 
