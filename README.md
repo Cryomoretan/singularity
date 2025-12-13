@@ -26,4 +26,4 @@ Benjamin
 
 ## Documentation
 
-See the ![Java APIDOC](https://cryomoretan.github.io/singularity/apidocs/com.cmt.singularity/module-summary.html)
+See the [Java APIDOC](https://cryomoretan.github.io/singularity/apidocs/com.cmt.singularity/module-summary.html)
