@@ -1,1 +1,1 @@
-moduleSearchIndex = [{"l":"de.cmt.singularity"}];updateSearchResults();
+moduleSearchIndex = [{"l":"com.cmt.singularity"}];updateSearchResults();

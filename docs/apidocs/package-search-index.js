@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"de.cmt.singularity","l":"de.cmt.singularity"},{"m":"de.cmt.singularity","l":"de.cmt.singularity.tasks"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"m":"com.cmt.singularity","l":"com.cmt.singularity"},{"m":"com.cmt.singularity","l":"com.cmt.singularity.tasks"}];updateSearchResults();
