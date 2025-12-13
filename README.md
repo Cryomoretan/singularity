@@ -2,6 +2,7 @@
 ![GitHub top language](https://img.shields.io/github/languages/top/Cryomoretan/singularity)
 ![GitHub last commit](https://img.shields.io/github/last-commit/Cryomoretan/singularity)
 ![GitHub issues](https://img.shields.io/github/issues/Cryomoretan/singularity)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/Cryomoretan/singularity/maven.yml)
 
 # Singularity Engine
 
