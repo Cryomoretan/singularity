@@ -25,51 +25,30 @@
 //</editor-fold>
 package com.cmt.singularity.tasks;
 
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Callable;
 
 /**
+ * This task is a wrapper for callables.
  *
  * @author Benjamin Schiller
  */
-public class StandardTaskBarrier implements TaskBarrier
+public class CallableTask implements Task
 {
 
-	@SuppressWarnings("unused")
-	private final static Logger log = LogManager.getLogger(StandardTasks.class.getName());
+	protected final Callable callable;
 
-	protected final CountDownLatch latch;
-
-	public StandardTaskBarrier(int count)
+	public CallableTask(Callable callable)
 	{
-		latch = new CountDownLatch(count);
+		this.callable = callable;
 	}
 
 	@Override
-	public void await()
+	public void execute()
 	{
 		try {
-			latch.await();
-		} catch (InterruptedException ex) {
-			log.error(ex);
+			callable.call();
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
 		}
-	}
-
-	@Override
-	public void await(long timeOut, TimeUnit unit)
-	{
-		try {
-			latch.await(timeOut, unit);
-		} catch (InterruptedException ex) {
-			log.error(ex);
-		}
-	}
-
-	@Override
-	public void arrive()
-	{
-		latch.countDown();
 	}
 }

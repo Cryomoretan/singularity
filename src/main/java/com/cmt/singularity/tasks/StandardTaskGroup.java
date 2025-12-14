@@ -25,11 +25,13 @@
 //</editor-fold>
 package com.cmt.singularity.tasks;
 
+import com.cmt.singularity.Configuration;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.util.UUID;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -49,6 +51,8 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 		protected final UUID id;
 
 		protected TaskBarrier terminationBarrier;
+
+		protected boolean ended;
 
 		public Worker(String name, boolean daemon)
 		{
@@ -73,48 +77,73 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 
 			while (terminationBarrier == null) {
 
+				Task task = null;
 				try {
-					Task task = queue.poll(100, TimeUnit.MILLISECONDS);
+					task = queue.poll(100, TimeUnit.MILLISECONDS);
+				} catch (InterruptedException ex) {
+					// do nothing
+				}
 
-					if (task != null) {
-						runningWorkerTasks.incrementAndGet();
+				if (task != null) {
+					runningWorkerTasks.incrementAndGet();
 
+					try {
 						task.execute();
-
-						runningWorkerTasks.decrementAndGet();
+					} catch (Throwable ex) {
+						// @todo what to do with those ex?
+						log.error(ex);
 					}
 
-				} catch (InterruptedException ex) {
+					runningWorkerTasks.decrementAndGet();
 
-					log.error(ex);
-
-					return;
+					if (workerMonitor != null) {
+						synchronized (workerMonitor) {
+							workerMonitor.notifyAll();
+						}
+					}
 				}
+			}
+
+			ended = true;
+
+			// Check if all workers are ended -> set global ended to true
+			boolean allEnded = true;
+			if (workers != null) {
+				for (Worker worker : workers) {
+					if (!worker.ended) {
+						allEnded = false;
+					}
+				}
+			}
+
+			if (allEnded) {
+				StandardTaskGroup.this.ended = true;
 			}
 
 			log.info("Exiting", getName());
-
-			synchronized (this) {
-				try {
-					this.wait(1);
-				} catch (InterruptedException ex) {
-					log.error(ex);
-				}
-			}
 
 			terminationBarrier.arrive();
 		}
 	}
 
+	protected final Configuration configuration;
 	protected final String name;
 	protected final Worker[] workers;
 	protected final BlockingQueue<Task> queue;
 	protected final AtomicInteger runningWorkerTasks;
+	protected final Object workerMonitor;
+	protected boolean ending;
+	protected boolean ended;
 
 	@SuppressWarnings("CallToThreadStartDuringObjectConstruction")
-	public StandardTaskGroup(String name, int poolSize, int queueSize, boolean daemon)
+	public StandardTaskGroup(Configuration configuration, String name, int poolSize, int queueSize, boolean daemon)
 	{
+		this.configuration = configuration;
+
 		this.name = name;
+
+		// Assign an object to allow waiting
+		workerMonitor = "";
 
 		runningWorkerTasks = new AtomicInteger();
 
@@ -136,6 +165,12 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 	}
 
 	@Override
+	public Task asTask(Callable callable)
+	{
+		return new CallableTask(callable);
+	}
+
+	@Override
 	public TaskBarrier parallelBefore(Task... tasks)
 	{
 		TaskBarrier barrier = new StandardTaskBarrier(tasks.length);
@@ -149,6 +184,7 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 				log.start(taskLog);
 
 				task.execute();
+
 				barrier.arrive();
 
 				log.stopDebug(taskLog);
@@ -170,6 +206,7 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 				log.start(taskLog);
 
 				barrier.await();
+
 				task.execute();
 
 				log.stopDebug(taskLog);
@@ -200,23 +237,34 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 		return this;
 	}
 
+	/**
+	 * Runs the given tasks sequential in order. It uses the SequentialTask for it.
+	 *
+	 * @param tasks
+	 * @return
+	 */
 	@Override
 	public TaskGroup sequential(Task... tasks)
 	{
-		queue.add(new SequentialTask(tasks));
+		queue.add(new SequentialTask(this, tasks));
 
 		return this;
 	}
 
+	/**
+	 * Makes sure the queue is empty and all workers have processed their tasks. Uses suspended waiting
+	 *
+	 * @return
+	 */
 	@Override
 	public TaskGroup join()
 	{
 		log.debug("join:enter");
 
-		synchronized (Thread.currentThread()) {
+		synchronized (workerMonitor) {
 			while (!queue.isEmpty() || runningWorkerTasks.get() > 0) {
 				try {
-					Thread.currentThread().wait(100);
+					workerMonitor.wait();
 				} catch (InterruptedException ex) {
 					log.error(ex);
 					return this;
@@ -229,17 +277,22 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 		return this;
 	}
 
-	public void endGracefully(TaskBarrier barrier)
+	@Override
+	public TaskBarrier endGracefully()
 	{
 		log.debug("endGracefully:enter");
 
-		join();
+		ending = true;
+
+		TaskBarrier terminationBarrier = new StandardTaskBarrier(workers.length);
 
 		for (Worker worker : workers) {
-			worker.terminate(barrier);
+			worker.terminate(terminationBarrier);
 		}
 
 		log.debug("endGracefully:exit");
+
+		return terminationBarrier;
 	}
 
 	@Override
@@ -258,8 +311,15 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 		return name;
 	}
 
-	public AtomicInteger getRunningWorkerTasks()
+	@Override
+	public boolean isEnding()
 	{
-		return runningWorkerTasks;
+		return ending;
+	}
+
+	@Override
+	public boolean isEnded()
+	{
+		return ended;
 	}
 }

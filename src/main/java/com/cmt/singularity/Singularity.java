@@ -26,6 +26,7 @@
 package com.cmt.singularity;
 
 import com.cmt.singularity.tasks.Tasks;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  *
@@ -34,10 +35,22 @@ import com.cmt.singularity.tasks.Tasks;
 public interface Singularity
 {
 
-	public static Singularity create()
+	public static Singularity create(Configuration configuration)
 	{
-		return new StandardSingularity();
+		try {
+			Singularity singularity = configuration.getSingularityClass().getConstructor().newInstance();
+
+			singularity.init(configuration);
+
+			return singularity;
+		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | InvocationTargetException ex) {
+			throw new RuntimeException(ex);
+		}
 	}
 
+	void init(Configuration configuration);
+
 	Tasks getTasks();
+
+	Configuration getConfiguration();
 }

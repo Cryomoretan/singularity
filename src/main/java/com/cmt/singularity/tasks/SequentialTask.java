@@ -29,6 +29,7 @@ import de.s42.log.LogManager;
 import de.s42.log.Logger;
 
 /**
+ * This task calls the given list of tasks in order
  *
  * @author Benjamin Schiller
  */
@@ -39,12 +40,18 @@ public class SequentialTask implements Task
 	private final static Logger log = LogManager.getLogger(SequentialTask.class.getName());
 
 	protected final Task[] tasks;
+	protected final TaskGroup group;
 
-	public SequentialTask(Task[] tasks)
+	public SequentialTask(TaskGroup group, Task... tasks)
 	{
+		this.group = group;
 		this.tasks = tasks;
 	}
 
+	/**
+	 * Execute all tasks sequential in order. between each task the group is checked if it is ending then execution is
+	 * not continued.
+	 */
 	@Override
 	public void execute()
 	{
@@ -62,12 +69,14 @@ public class SequentialTask implements Task
 
 			log.stopDebug(taskLog);
 			log.debug(taskLog + ":exit");
+
+			// End early if the group is ending
+			if (group.isEnding()) {
+				break;
+			}
 		}
 
 		log.stopDebug("execute");
 		log.debug("execute:exit");
 	}
-
-	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
-	// "Getters/Setters" </editor-fold>
 }

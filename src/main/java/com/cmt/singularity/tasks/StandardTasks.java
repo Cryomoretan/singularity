@@ -25,6 +25,7 @@
 //</editor-fold>
 package com.cmt.singularity.tasks;
 
+import com.cmt.singularity.Configuration;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.util.*;
@@ -42,12 +43,23 @@ public class StandardTasks implements Tasks
 
 	protected final Set<StandardTaskGroup> groups = new ConcurrentSkipListSet<>();
 
+	protected final Configuration configuration;
+
+	public StandardTasks(Configuration configuration)
+	{
+		this.configuration = configuration;
+	}
+
 	@Override
 	public TaskGroup createTaskGroup(String name, int poolSize, int queueSize, boolean daemon)
 	{
-		StandardTaskGroup group = new StandardTaskGroup(name, poolSize, queueSize, daemon);
+		log.debug("createTaskGroup:enter");
+
+		StandardTaskGroup group = new StandardTaskGroup(configuration, name, poolSize, queueSize, daemon);
 
 		groups.add(group);
+
+		log.debug("createTaskGroup:exit");
 
 		return group;
 	}
@@ -66,24 +78,26 @@ public class StandardTasks implements Tasks
 	}
 
 	@Override
-	public void endGracefully()
+	public TaskBarrier endGracefully()
 	{
 		log.debug("endGracefully:enter");
-
-		join();
 
 		// Create copy to make sure the list does not change while iterating to make behavior easier to reason
 		List<StandardTaskGroup> g = new ArrayList<>(groups);
 
-		TaskBarrier terminationBarrier = new StandardTaskBarrier(g.size());
+		TaskBarrier[] barriers = new TaskBarrier[g.size()];
 
+		int i = 0;
 		for (StandardTaskGroup group : g) {
-			group.endGracefully(terminationBarrier);
+			barriers[i] = group.endGracefully();
+			i++;
 		}
 
-		terminationBarrier.await();
+		GroupedTaskBarrier terminationBarrier = new GroupedTaskBarrier(barriers);
 
 		log.debug("endGracefully:exit");
+
+		return terminationBarrier;
 	}
 
 	@Override
@@ -95,6 +109,46 @@ public class StandardTasks implements Tasks
 	@Override
 	public Set<TaskGroup> getTaskGroups()
 	{
-		return Collections.unmodifiableSet(groups);
+		return Collections.unmodifiableSet(new HashSet<>(groups));
+	}
+
+	/**
+	 * Determines if all contained task groups are ending which are contained at the moment of this call.
+	 *
+	 * @return
+	 */
+	@Override
+	public boolean isEnding()
+	{
+		Set<TaskGroup> g = getTaskGroups();
+
+		// If 1 is not ending -> return false
+		for (TaskGroup group : g) {
+			if (!group.isEnding()) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Determines if all contained task groups are ended which are contained at the moment of this call.
+	 *
+	 * @return
+	 */
+	@Override
+	public boolean isEnded()
+	{
+		Set<TaskGroup> g = getTaskGroups();
+
+		// If 1 is not ending -> return false
+		for (TaskGroup group : g) {
+			if (!group.isEnded()) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

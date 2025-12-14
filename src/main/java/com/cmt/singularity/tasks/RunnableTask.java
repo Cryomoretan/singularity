@@ -26,6 +26,7 @@
 package com.cmt.singularity.tasks;
 
 /**
+ * This task i a wrapper for runnables.
  *
  * @author Benjamin Schiller
  */
@@ -44,7 +45,4 @@ public class RunnableTask implements Task
 	{
 		runnable.run();
 	}
-
-	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
-	// "Getters/Setters" </editor-fold>
 }

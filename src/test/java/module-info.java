@@ -23,53 +23,14 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
-
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
-/**
- *
- * @author Benjamin Schiller
- */
-public class StandardTaskBarrier implements TaskBarrier
+module com.cmt.singularity
 {
+	requires org.testng;
+	requires de.sft.log;
 
-	@SuppressWarnings("unused")
-	private final static Logger log = LogManager.getLogger(StandardTasks.class.getName());
+	exports com.cmt.singularity;
+	exports com.cmt.singularity.tasks;
 
-	protected final CountDownLatch latch;
-
-	public StandardTaskBarrier(int count)
-	{
-		latch = new CountDownLatch(count);
-	}
-
-	@Override
-	public void await()
-	{
-		try {
-			latch.await();
-		} catch (InterruptedException ex) {
-			log.error(ex);
-		}
-	}
-
-	@Override
-	public void await(long timeOut, TimeUnit unit)
-	{
-		try {
-			latch.await(timeOut, unit);
-		} catch (InterruptedException ex) {
-			log.error(ex);
-		}
-	}
-
-	@Override
-	public void arrive()
-	{
-		latch.countDown();
-	}
+	opens com.cmt.singularity;
+	opens com.cmt.singularity.tasks;
 }

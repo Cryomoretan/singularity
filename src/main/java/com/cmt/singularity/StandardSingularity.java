@@ -37,9 +37,18 @@ public class StandardSingularity implements Singularity
 
 	protected Tasks tasks;
 
-	public StandardSingularity()
+	protected Configuration configuration;
+
+	protected boolean loaded;
+
+	@Override
+	public void init(Configuration configuration)
 	{
-		tasks = new StandardTasks();
+		this.configuration = configuration;
+
+		tasks = new StandardTasks(configuration);
+
+		loaded = true;
 	}
 
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
@@ -51,7 +60,22 @@ public class StandardSingularity implements Singularity
 
 	public void setTasks(Tasks tasks)
 	{
+		if (loaded) {
+			throw new RuntimeException("Can not get changed after being loaded");
+		}
+
 		this.tasks = tasks;
+	}
+
+	@Override
+	public Configuration getConfiguration()
+	{
+		return configuration;
+	}
+
+	public boolean isLoaded()
+	{
+		return loaded;
 	}
 	// "Getters/Setters" </editor-fold>
 }

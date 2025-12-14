@@ -25,6 +25,7 @@
 //</editor-fold>
 package com.cmt.singularity.tasks;
 
+import com.cmt.singularity.Configuration;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import org.testng.annotations.Test;
@@ -56,8 +57,10 @@ public class TasksTest
 		log.debug("runSimpleTask:enter");
 		log.start("runSimpleTask");
 
+		Configuration configuration = Configuration.create();
+
 		// Easily create a Tasks managing task execution
-		Tasks tasks = new StandardTasks();
+		Tasks tasks = new StandardTasks(configuration);
 
 		TaskGroup group = tasks.createTaskGroup("Main", 2, 100, true);
 
@@ -88,8 +91,10 @@ public class TasksTest
 		log.debug("runStructuredTasks");
 		log.start("runStructuredTasks");
 
+		Configuration configuration = Configuration.create();
+
 		// Easily create a Tasks managing task execution
-		Tasks tasks = new StandardTasks();
+		Tasks tasks = new StandardTasks(configuration);
 
 		// Create groups
 		TaskGroup mainGroup = tasks.createTaskGroup("Main", 1, 100, false);

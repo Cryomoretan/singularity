@@ -27,49 +27,80 @@ package com.cmt.singularity.tasks;
 
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * The grouped task barrier allows to group other task barriers to act as a single barrier. This is useful when awaiting
+ * the exit of multiple task groups etc.
  *
  * @author Benjamin Schiller
  */
-public class StandardTaskBarrier implements TaskBarrier
+public class GroupedTaskBarrier implements TaskBarrier
 {
 
 	@SuppressWarnings("unused")
 	private final static Logger log = LogManager.getLogger(StandardTasks.class.getName());
 
-	protected final CountDownLatch latch;
+	/**
+	 * The given task barriers to treat as one
+	 */
+	protected final TaskBarrier[] barriers;
 
-	public StandardTaskBarrier(int count)
+	public GroupedTaskBarrier(TaskBarrier... barriers)
 	{
-		latch = new CountDownLatch(count);
+		this.barriers = barriers;
 	}
 
+	/**
+	 * Will await() each grouped barrier.
+	 */
 	@Override
 	public void await()
 	{
-		try {
-			latch.await();
-		} catch (InterruptedException ex) {
-			log.error(ex);
+		for (TaskBarrier barrier : barriers) {
+			barrier.await();
 		}
 	}
 
+	/**
+	 * Will await the grouped barriers handling that the total timeout is not exceeded. Will call each grouped barrier
+	 * with the delta timeout left. So it might not call the await(timeOut, unit) of some of the contained barriers if
+	 * the timeout is already reached before.
+	 *
+	 * @param timeOut
+	 * @param unit
+	 */
 	@Override
 	public void await(long timeOut, TimeUnit unit)
 	{
-		try {
-			latch.await(timeOut, unit);
-		} catch (InterruptedException ex) {
-			log.error(ex);
+		// Make sure to hold the timeOut contract by subtracting the used timeout duration of each contained barrier.
+		long tout = timeOut;
+
+		for (TaskBarrier barrier : barriers) {
+
+			long before = System.nanoTime();
+
+			barrier.await(tout, unit);
+
+			// Get the delta time converted in correct units and exit the loop if all time is used up.
+			long delta = unit.convert(System.nanoTime() - before, TimeUnit.NANOSECONDS);
+
+			tout -= delta;
+
+			if (tout <= 0) {
+				break;
+			}
 		}
 	}
 
+	/**
+	 * Will call arrive() for all grouped barriers.
+	 */
 	@Override
 	public void arrive()
 	{
-		latch.countDown();
+		for (TaskBarrier barrier : barriers) {
+			barrier.arrive();
+		}
 	}
 }

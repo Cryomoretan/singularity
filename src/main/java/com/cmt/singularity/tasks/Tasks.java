@@ -29,19 +29,64 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
+ * The Tasks provides the global management of running asynchronous tasks. The task running is handled through
+ * TaskGroups.
  *
  * @author Benjamin Schiller
  */
 public interface Tasks
 {
 
+	/**
+	 * Creates and registers the task group in this tasks.
+	 *
+	 * @param name
+	 * @param poolSize
+	 * @param queueSize
+	 * @param daemon
+	 * @return
+	 */
 	TaskGroup createTaskGroup(String name, int poolSize, int queueSize, boolean daemon);
 
+	/**
+	 * Returns a Set of the task groups at call time. Changes of tasks groups are not reflected.
+	 *
+	 * @return
+	 */
 	Set<TaskGroup> getTaskGroups();
 
+	/**
+	 * Optionally returns the first task group with the the given name.
+	 *
+	 * @param name
+	 * @return
+	 */
 	Optional<TaskGroup> getTaskGroupByName(String name);
 
+	/**
+	 * Waits till ALL tasks in that group have been processed - means no tasks in queue and all tasks that were
+	 * processed exited their execute() method.
+	 */
 	void join();
 
-	void endGracefully();
+	/**
+	 * Requests ALL task groups to end and returns a barrier to wait for all tasks to have ended (like join).
+	 *
+	 * @return
+	 */
+	TaskBarrier endGracefully();
+
+	/**
+	 * Signals if the tasks are ending or ended
+	 *
+	 * @return
+	 */
+	boolean isEnding();
+
+	/**
+	 * Signals if the tasks are ended
+	 *
+	 * @return
+	 */
+	boolean isEnded();
 }

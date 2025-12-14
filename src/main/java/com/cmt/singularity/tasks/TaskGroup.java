@@ -25,24 +25,101 @@
 //</editor-fold>
 package com.cmt.singularity.tasks;
 
+import java.util.concurrent.Callable;
+
 /**
+ * The TaskGroup represents an executor scope. Tasks can get added with certain contracts (parallel, sequential, ...)
+ * and will get executed accordingly.
  *
  * @author Benjamin Schiller
  */
 public interface TaskGroup
 {
 
+	/**
+	 * The name of this task group.
+	 *
+	 * @return
+	 */
 	String getName();
 
+	/**
+	 * Returns a task implementation of the given Runnable that can be executed in this task group.
+	 *
+	 * @param runnable
+	 * @return
+	 */
 	Task asTask(Runnable runnable);
 
+	/**
+	 * Returns a task implementation of the given Callable that can be executed in this task group.
+	 *
+	 * @param callable
+	 * @return
+	 */
+	Task asTask(Callable callable);
+
+	/**
+	 * Add a list of tasks to be executed in parallel by this task group.
+	 *
+	 * @param tasks
+	 * @return
+	 */
 	TaskGroup parallel(Task... tasks);
 
+	/**
+	 * Add a list of tasks to be executed in sequentially in order by this task group.
+	 *
+	 * @param tasks
+	 * @return
+	 */
 	TaskGroup sequential(Task... tasks);
 
+	/**
+	 * Add a list of tasks to be executed in parallel by this task group before the returned barrier is arrived. All
+	 * tasks in this list have returned from their execute() method before the barrier is arriving.
+	 *
+	 * @param tasks
+	 * @return
+	 */
 	TaskBarrier parallelBefore(Task... tasks);
 
+	/**
+	 * Executes the given tasks guarantueed after the arrival of the given barrier. The tasks may not block the
+	 * execution of this task group until then.
+	 *
+	 * @param barrier
+	 * @param tasks
+	 * @return
+	 */
 	TaskGroup parallelAfter(TaskBarrier barrier, Task... tasks);
 
+	/**
+	 * Waits till ALL tasks in that group have been processed - means no tasks in queue and all tasks exited their
+	 * execute() method.
+	 *
+	 * @return
+	 */
 	TaskGroup join();
+
+	/**
+	 * Ends this group returning a barrier that is arrived after the group has ended.
+	 *
+	 * @return
+	 */
+	TaskBarrier endGracefully();
+
+	/**
+	 * Signals if the tasks are ending or ended
+	 *
+	 * @return
+	 */
+	boolean isEnding();
+
+	/**
+	 * Signals if the tasks are ended
+	 *
+	 * @return
+	 */
+	boolean isEnded();
 }
