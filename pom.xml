@@ -24,12 +24,12 @@
 		<dependency>
 			<groupId>de.s42</groupId>
 			<artifactId>dlt</artifactId>
-			<version>1.0.3</version>
+			<version>1.0.4-DEV</version>
 		</dependency>
 		<dependency>
 			<groupId>de.s42</groupId>
 			<artifactId>dlui</artifactId>
-			<version>1.0.2</version>
+			<version>1.0.3-DEV</version>
 		</dependency>
 		<dependency>
 			<groupId>org.joml</groupId>
@@ -143,7 +143,7 @@
 									<arg value="--abbrev=11"/>
 									<arg value="HEAD"/>
 								</exec>
-								<property name="versionFile" value="${project.basedir}/src/main/resources/de/cmt/singularity/${project.artifactId}.version"/>
+								<property name="versionFile" value="${project.basedir}/src/main/resources/com/cmt/singularity/${project.artifactId}.version"/>
 								<property name="fullVersion" value="${project.version} #${git.revision} ${maven.build.timestamp}"/>
 								<echo file="${versionFile}">${fullVersion}</echo>
 								<echo>New version is ${fullVersion}</echo>
