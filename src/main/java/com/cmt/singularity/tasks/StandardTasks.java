@@ -26,6 +26,7 @@
 package com.cmt.singularity.tasks;
 
 import com.cmt.singularity.Configuration;
+import com.cmt.singularity.assertion.Assert;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.util.*;
@@ -41,25 +42,33 @@ public class StandardTasks implements Tasks
 	@SuppressWarnings("unused")
 	private final static Logger log = LogManager.getLogger(StandardTasks.class.getName());
 
+	private final static Assert assertion = Assert.getAssert(StandardTasks.class.getName());
+
 	protected final Set<StandardTaskGroup> groups = new ConcurrentSkipListSet<>();
 
 	protected final Configuration configuration;
 
 	public StandardTasks(Configuration configuration)
 	{
+		assertion.assertNotNull(configuration, "configuration != null");
+
 		this.configuration = configuration;
 	}
 
 	@Override
 	public TaskGroup createTaskGroup(String name, int poolSize, int queueSize, boolean daemon)
 	{
-		log.debug("createTaskGroup:enter");
+		assertion.assertNotNull(name, "name != null");
+		assertion.assertTrue(poolSize > 0, "poolSize > 0");
+		assertion.assertTrue(queueSize > 0, "queueSize > 0");
+
+		log.trace("createTaskGroup:enter");
 
 		StandardTaskGroup group = new StandardTaskGroup(configuration, name, poolSize, queueSize, daemon);
 
 		groups.add(group);
 
-		log.debug("createTaskGroup:exit");
+		log.trace("createTaskGroup:exit");
 
 		return group;
 	}
@@ -67,20 +76,23 @@ public class StandardTasks implements Tasks
 	@Override
 	public void join()
 	{
-		log.debug("join:enter");
+		log.trace("join:enter");
 
 		// Create copy to make sure the list does not change while iterating to make behavior easier to reason
 		for (TaskGroup group : new ArrayList<>(groups)) {
 			group.join();
 		}
 
-		log.debug("join:exit");
+		log.trace("join:exit");
 	}
 
 	@Override
 	public TaskBarrier endGracefully()
 	{
-		log.debug("endGracefully:enter");
+		assertion.assertFalse(isEnding(), "isEnding() == false");
+		assertion.assertFalse(isEnded(), "isEnded() == false");
+
+		log.trace("endGracefully:enter");
 
 		// Create copy to make sure the list does not change while iterating to make behavior easier to reason
 		List<StandardTaskGroup> g = new ArrayList<>(groups);
@@ -95,7 +107,7 @@ public class StandardTasks implements Tasks
 
 		GroupedTaskBarrier terminationBarrier = new GroupedTaskBarrier(barriers);
 
-		log.debug("endGracefully:exit");
+		log.trace("endGracefully:exit");
 
 		return terminationBarrier;
 	}
@@ -103,6 +115,8 @@ public class StandardTasks implements Tasks
 	@Override
 	public Optional<TaskGroup> getTaskGroupByName(String name)
 	{
+		assertion.assertNotNull(name, "name != null");
+
 		return Optional.ofNullable((StandardTaskGroup) groups.stream().filter((tg) -> tg.getName().equals(name)).findAny().orElse(null));
 	}
 

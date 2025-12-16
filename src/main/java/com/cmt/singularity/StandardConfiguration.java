@@ -25,6 +25,7 @@
 //</editor-fold>
 package com.cmt.singularity;
 
+import com.cmt.singularity.assertion.Assert;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,8 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class StandardConfiguration implements Configuration
 {
 
-	public final static String KEY_SINGULARITY_CLASS = "singularityClass";
-	public final static Class<? extends Singularity> DEFAULT_SINGULARITY_CLASS = StandardSingularity.class;
+	public final static Assert assertion = Assert.getAssert(StandardConfiguration.class.getName());
 
 	protected final Map<String, Object> properties;
 
@@ -54,24 +54,35 @@ public class StandardConfiguration implements Configuration
 	@Override
 	public void set(String key, Object value)
 	{
+		assertion.assertNotNull(key, "key != null");
+		assertion.assertNotNull(value, "value != null");
+
 		properties.put(key, value);
 	}
 
 	@Override
 	public void setFixed(String key, Object value)
 	{
+		assertion.assertNotNull(key, "key != null");
+		assertion.assertNotNull(value, "value != null");
+
+		// @todo handle fixed config values
 		properties.put(key, value);
 	}
 
 	@Override
 	public Object get(String key)
 	{
+		assertion.assertNotNull(key, "key != null");
+
 		return properties.get(key);
 	}
 
 	@Override
 	public Object get(String key, Object defaultValue)
 	{
+		assertion.assertNotNull(key, "key != null");
+
 		Object value = properties.get(key);
 
 		if (value == null) {
@@ -181,13 +192,14 @@ public class StandardConfiguration implements Configuration
 	@Override
 	public Class<? extends Singularity> getSingularityClass()
 	{
-		return getAs(KEY_SINGULARITY_CLASS, DEFAULT_SINGULARITY_CLASS, Class.class);
+		return getAs(CONFIGURATION_SINGULARITY_CLASS_KEY, CONFIGURATION_SINGULARITY_CLASS_DEFAULT, Class.class);
 	}
 
 	public void setSingularityClass(Class<? extends Singularity> singularityClass)
 	{
-		set(KEY_SINGULARITY_CLASS, singularityClass);
-	}
-	// "Getters/Setters" </editor-fold>
+		assertion.assertNotNull(singularityClass, "singularityClass != null");
 
+		set(CONFIGURATION_SINGULARITY_CLASS_KEY, singularityClass);
+	}
+	// "Getters/Setters" </editor-fold>´
 }

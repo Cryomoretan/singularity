@@ -26,6 +26,7 @@
 package com.cmt.singularity.tasks;
 
 import com.cmt.singularity.Configuration;
+import com.cmt.singularity.assertion.Assert;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.util.UUID;
@@ -42,10 +43,61 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class StandardTaskGroup implements TaskGroup, Comparable
 {
 
-	@SuppressWarnings("unused")
-	private final static Logger log = LogManager.getLogger(StandardTasks.class.getName());
+	private final static Logger log = LogManager.getLogger(StandardTaskGroup.class.getName());
 
-	protected class Worker extends Thread
+	private final static Assert assertion = Assert.getAssert(StandardTaskGroup.class.getName());
+
+	public static class StandardTaskWrapperTask implements Task
+	{
+
+		protected final Task task;
+		protected final TaskBarrier await;
+		protected final TaskBarrier arrive;
+		protected final String taskLog;
+		protected final boolean logTasks;
+
+		public StandardTaskWrapperTask(Task task, boolean logTasks)
+		{
+			this(task, null, null, logTasks);
+		}
+
+		public StandardTaskWrapperTask(Task task, TaskBarrier await, TaskBarrier arrive, boolean logTasks)
+		{
+			assertion.assertNotNull(task, "task != null");
+
+			this.task = task;
+			this.await = await;
+			this.arrive = arrive;
+			this.logTasks = logTasks;
+			taskLog = task.getClass().getName() + ".execute";
+		}
+
+		@Override
+		public void execute()
+		{
+			if (logTasks) {
+				log.debug(taskLog + ":enter");
+				log.start(taskLog);
+			}
+
+			if (await != null) {
+				await.arrive();
+			}
+
+			task.execute();
+
+			if (arrive != null) {
+				arrive.arrive();
+			}
+
+			if (logTasks) {
+				log.stopDebug(taskLog);
+				log.debug(taskLog + ":exit");
+			}
+		}
+	}
+
+	protected final class Worker extends Thread
 	{
 
 		protected final UUID id;
@@ -58,6 +110,8 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 		{
 			super();
 
+			assertion.assertNotNull(name, "name != null");
+
 			id = UUID.randomUUID();
 			setName(name + " " + id);
 			setDaemon(daemon);
@@ -65,7 +119,9 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 
 		public void terminate(TaskBarrier terminationBarrier)
 		{
-			log.info("Terminating", getName());
+			assertion.assertNotNull(terminationBarrier, "terminationBarrier != null");
+
+			log.trace("Terminating", getName());
 
 			this.terminationBarrier = terminationBarrier;
 		}
@@ -73,12 +129,13 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 		@Override
 		public void run()
 		{
-			log.info("Starting", getName());
+			log.trace("Starting", getName());
 
 			while (terminationBarrier == null) {
 
 				Task task = null;
 				try {
+					// @todo What is the right value here for poll time out?
 					task = queue.poll(100, TimeUnit.MILLISECONDS);
 				} catch (InterruptedException ex) {
 					// do nothing
@@ -120,25 +177,28 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 				StandardTaskGroup.this.ended = true;
 			}
 
-			log.info("Exiting", getName());
+			log.trace("Exiting", getName());
 
 			terminationBarrier.arrive();
 		}
 	}
 
-	protected final Configuration configuration;
 	protected final String name;
 	protected final Worker[] workers;
 	protected final BlockingQueue<Task> queue;
 	protected final AtomicInteger runningWorkerTasks;
 	protected final Object workerMonitor;
+	protected final boolean logTasks;
 	protected boolean ending;
 	protected boolean ended;
 
 	@SuppressWarnings("CallToThreadStartDuringObjectConstruction")
 	public StandardTaskGroup(Configuration configuration, String name, int poolSize, int queueSize, boolean daemon)
 	{
-		this.configuration = configuration;
+		assertion.assertNotNull(configuration, "configuration != null");
+		assertion.assertNotNull(name, "name != null");
+		assertion.assertTrue(poolSize > 0, "poolSize > 0");
+		assertion.assertTrue(queueSize > 0, "queueSize > 0");
 
 		this.name = name;
 
@@ -156,62 +216,48 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 			workers[i] = new Worker(name, daemon);
 			workers[i].start();
 		}
+
+		logTasks = configuration.getBoolean(COFIGURATION_TASK_GROUP_LOG_KEY, COFIGURATION_TASK_GROUP_LOG_DEFAULT);
 	}
 
 	@Override
 	public Task asTask(Runnable runnable)
 	{
+		assertion.assertNotNull(runnable, "runnable != null");
+
 		return new RunnableTask(runnable);
 	}
 
 	@Override
 	public Task asTask(Callable callable)
 	{
+		assertion.assertNotNull(callable, "callable != null");
+
 		return new CallableTask(callable);
 	}
 
 	@Override
 	public TaskBarrier parallelBefore(Task... tasks)
 	{
-		TaskBarrier barrier = new StandardTaskBarrier(tasks.length);
+		assertion.assertNotEmpty(tasks, "tasks not empty");
+
+		TaskBarrier arrive = new StandardTaskBarrier(tasks.length);
 
 		for (Task task : tasks) {
-			queue.add(() -> {
-
-				String taskLog = task.getClass().getName() + ".execute";
-
-				log.debug(taskLog + ":enter");
-				log.start(taskLog);
-
-				task.execute();
-
-				barrier.arrive();
-
-				log.stopDebug(taskLog);
-				log.debug(taskLog + ":exit");
-			});
+			queue.add(new StandardTaskWrapperTask(task, null, arrive, logTasks));
 		}
 
-		return barrier;
+		return arrive;
 	}
 
 	@Override
-	public TaskGroup parallelAfter(TaskBarrier barrier, Task... tasks)
+	public TaskGroup parallelAfter(TaskBarrier await, Task... tasks)
 	{
+		assertion.assertNotNull(await, "await != null");
+		assertion.assertNotEmpty(tasks, "tasks not empty");
+
 		for (Task task : tasks) {
-			queue.add(() -> {
-				String taskLog = task.getClass().getName() + ".execute";
-
-				log.debug(taskLog + ":enter");
-				log.start(taskLog);
-
-				barrier.await();
-
-				task.execute();
-
-				log.stopDebug(taskLog);
-				log.debug(taskLog + ":exit");
-			});
+			queue.add(new StandardTaskWrapperTask(task, await, null, logTasks));
 		}
 
 		return this;
@@ -220,18 +266,10 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 	@Override
 	public TaskGroup parallel(Task... tasks)
 	{
+		assertion.assertNotEmpty(tasks, "tasks not empty");
+
 		for (Task task : tasks) {
-			queue.add(() -> {
-				String taskLog = task.getClass().getName() + ".execute";
-
-				log.debug(taskLog + ":enter");
-				log.start(taskLog);
-
-				task.execute();
-
-				log.stopDebug(taskLog);
-				log.debug(taskLog + ":exit");
-			});
+			queue.add(new StandardTaskWrapperTask(task, null, null, logTasks));
 		}
 
 		return this;
@@ -246,7 +284,12 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 	@Override
 	public TaskGroup sequential(Task... tasks)
 	{
-		queue.add(new SequentialTask(this, tasks));
+		assertion.assertNotEmpty(tasks, "tasks not empty");
+
+		queue.add(
+			new StandardTaskWrapperTask(
+				new SequentialTask(this, logTasks, tasks), null, null, logTasks)
+		);
 
 		return this;
 	}
@@ -259,7 +302,7 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 	@Override
 	public TaskGroup join()
 	{
-		log.debug("join:enter");
+		log.trace("join:enter");
 
 		synchronized (workerMonitor) {
 			while (!queue.isEmpty() || runningWorkerTasks.get() > 0) {
@@ -272,15 +315,23 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 			}
 		}
 
-		log.debug("join:exit");
+		log.trace("join:exit");
 
 		return this;
 	}
 
+	/**
+	 * Ends this task group gracefully (terminates workers) allowing waiting for its workers to terminate.
+	 *
+	 * @return
+	 */
 	@Override
 	public TaskBarrier endGracefully()
 	{
-		log.debug("endGracefully:enter");
+		assertion.assertFalse(ending, "ending == false");
+		assertion.assertFalse(ended, "ended == false");
+
+		log.trace("endGracefully:enter");
 
 		ending = true;
 
@@ -290,7 +341,7 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 			worker.terminate(terminationBarrier);
 		}
 
-		log.debug("endGracefully:exit");
+		log.trace("endGracefully:exit");
 
 		return terminationBarrier;
 	}

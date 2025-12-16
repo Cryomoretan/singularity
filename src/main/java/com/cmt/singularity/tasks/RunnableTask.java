@@ -25,6 +25,8 @@
 //</editor-fold>
 package com.cmt.singularity.tasks;
 
+import com.cmt.singularity.assertion.Assert;
+
 /**
  * This task i a wrapper for runnables.
  *
@@ -33,10 +35,14 @@ package com.cmt.singularity.tasks;
 public class RunnableTask implements Task
 {
 
+	private final static Assert assertion = Assert.getAssert(RunnableTask.class.getName());
+
 	protected final Runnable runnable;
 
 	public RunnableTask(Runnable runnable)
 	{
+		assertion.assertNotNull(runnable, "runnable != null");
+
 		this.runnable = runnable;
 	}
 

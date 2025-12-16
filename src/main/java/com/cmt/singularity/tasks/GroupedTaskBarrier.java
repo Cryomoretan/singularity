@@ -25,8 +25,7 @@
 //</editor-fold>
 package com.cmt.singularity.tasks;
 
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
+import com.cmt.singularity.assertion.Assert;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -38,8 +37,7 @@ import java.util.concurrent.TimeUnit;
 public class GroupedTaskBarrier implements TaskBarrier
 {
 
-	@SuppressWarnings("unused")
-	private final static Logger log = LogManager.getLogger(StandardTasks.class.getName());
+	private final static Assert assertion = Assert.getAssert(GroupedTaskBarrier.class.getName());
 
 	/**
 	 * The given task barriers to treat as one
@@ -48,6 +46,8 @@ public class GroupedTaskBarrier implements TaskBarrier
 
 	public GroupedTaskBarrier(TaskBarrier... barriers)
 	{
+		assertion.assertNotEmpty(barriers, "barriers not empty");
+
 		this.barriers = barriers;
 	}
 
@@ -73,6 +73,9 @@ public class GroupedTaskBarrier implements TaskBarrier
 	@Override
 	public void await(long timeOut, TimeUnit unit)
 	{
+		assertion.assertTrue(timeOut >= 0, "timeOut >= 0");
+		assertion.assertNotNull(unit, "unit != null");
+
 		// Make sure to hold the timeOut contract by subtracting the used timeout duration of each contained barrier.
 		long tout = timeOut;
 

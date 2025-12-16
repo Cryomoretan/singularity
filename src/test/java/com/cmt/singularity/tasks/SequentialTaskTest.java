@@ -65,7 +65,7 @@ public class SequentialTaskTest
 			counter.count++;
 		});
 
-		SequentialTask sequential = new SequentialTask(group, task1, task2);
+		SequentialTask sequential = new SequentialTask(group, false, task1, task2);
 
 		group.parallel(sequential);
 
@@ -103,7 +103,7 @@ public class SequentialTaskTest
 			Assert.fail();
 		});
 
-		SequentialTask sequential = new SequentialTask(group, task1, task2);
+		SequentialTask sequential = new SequentialTask(group, false, task1, task2);
 
 		group.parallel(sequential);
 

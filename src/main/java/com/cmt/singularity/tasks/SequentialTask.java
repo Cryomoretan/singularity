@@ -25,8 +25,8 @@
 //</editor-fold>
 package com.cmt.singularity.tasks;
 
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
+import com.cmt.singularity.assertion.Assert;
+import com.cmt.singularity.tasks.StandardTaskGroup.StandardTaskWrapperTask;
 
 /**
  * This task calls the given list of tasks in order
@@ -36,15 +36,19 @@ import de.s42.log.Logger;
 public class SequentialTask implements Task
 {
 
-	@SuppressWarnings("unused")
-	private final static Logger log = LogManager.getLogger(SequentialTask.class.getName());
+	private final static Assert assertion = Assert.getAssert(SequentialTask.class.getName());
 
 	protected final Task[] tasks;
 	protected final TaskGroup group;
+	protected final boolean logTasks;
 
-	public SequentialTask(TaskGroup group, Task... tasks)
+	public SequentialTask(TaskGroup group, boolean logTasks, Task... tasks)
 	{
+		assertion.assertNotNull(group, "group != 0");
+		assertion.assertNotEmpty(tasks, "tasks not empty");
+
 		this.group = group;
+		this.logTasks = logTasks;
 		this.tasks = tasks;
 	}
 
@@ -55,28 +59,16 @@ public class SequentialTask implements Task
 	@Override
 	public void execute()
 	{
-		log.debug("execute:enter");
-		log.start("execute");
-
 		for (Task task : tasks) {
 
-			String taskLog = task.getClass().getName() + ".execute";
-
-			log.debug(taskLog + ":enter");
-			log.start(taskLog);
-
-			task.execute();
-
-			log.stopDebug(taskLog);
-			log.debug(taskLog + ":exit");
+			// Create and execute wrapper (allowing logging)
+			StandardTaskWrapperTask wrapper = new StandardTaskGroup.StandardTaskWrapperTask(task, null, null, logTasks);
+			wrapper.execute();
 
 			// End early if the group is ending
 			if (group.isEnding()) {
 				break;
 			}
 		}
-
-		log.stopDebug("execute");
-		log.debug("execute:exit");
 	}
 }

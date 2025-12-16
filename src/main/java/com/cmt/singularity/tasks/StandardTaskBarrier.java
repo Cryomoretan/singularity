@@ -25,8 +25,7 @@
 //</editor-fold>
 package com.cmt.singularity.tasks;
 
-import de.s42.log.LogManager;
-import de.s42.log.Logger;
+import com.cmt.singularity.assertion.Assert;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -37,13 +36,14 @@ import java.util.concurrent.TimeUnit;
 public class StandardTaskBarrier implements TaskBarrier
 {
 
-	@SuppressWarnings("unused")
-	private final static Logger log = LogManager.getLogger(StandardTasks.class.getName());
+	private final static Assert assertion = Assert.getAssert(StandardTaskBarrier.class.getName());
 
 	protected final CountDownLatch latch;
 
 	public StandardTaskBarrier(int count)
 	{
+		assertion.assertTrue(count > 0, "count > 0");
+
 		latch = new CountDownLatch(count);
 	}
 
@@ -53,17 +53,22 @@ public class StandardTaskBarrier implements TaskBarrier
 		try {
 			latch.await();
 		} catch (InterruptedException ex) {
-			log.error(ex);
+			// @todo Add error handling
+			throw new RuntimeException();
 		}
 	}
 
 	@Override
 	public void await(long timeOut, TimeUnit unit)
 	{
+		assertion.assertTrue(timeOut >= 0, "timeOut >= 0");
+		assertion.assertNotNull(unit, "unit != null");
+
 		try {
 			latch.await(timeOut, unit);
 		} catch (InterruptedException ex) {
-			log.error(ex);
+			// @todo Add error handling
+			throw new RuntimeException();
 		}
 	}
 

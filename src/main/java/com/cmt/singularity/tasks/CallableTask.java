@@ -25,6 +25,7 @@
 //</editor-fold>
 package com.cmt.singularity.tasks;
 
+import com.cmt.singularity.assertion.Assert;
 import java.util.concurrent.Callable;
 
 /**
@@ -35,10 +36,14 @@ import java.util.concurrent.Callable;
 public class CallableTask implements Task
 {
 
+	private final static Assert assertion = Assert.getAssert(CallableTask.class.getName());
+
 	protected final Callable callable;
 
 	public CallableTask(Callable callable)
 	{
+		assertion.assertNotNull(callable, "callable != null");
+
 		this.callable = callable;
 	}
 

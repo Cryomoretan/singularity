@@ -26,6 +26,7 @@
 package com.cmt.singularity.tasks;
 
 /**
+ * Allows the execution of a work unit.
  *
  * @author Benjamin Schiller
  */
@@ -33,5 +34,8 @@ package com.cmt.singularity.tasks;
 public interface Task
 {
 
+	/**
+	 * Execute this task.
+	 */
 	void execute();
 }

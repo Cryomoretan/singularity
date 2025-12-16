@@ -42,6 +42,7 @@ module com.cmt.singularity
 	requires org.joml;
 
 	exports com.cmt.singularity;
+	exports com.cmt.singularity.assertion;
 	exports com.cmt.singularity.tasks;
 
 	opens com.cmt.singularity;

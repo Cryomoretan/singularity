@@ -25,6 +25,7 @@
 //</editor-fold>
 package com.cmt.singularity;
 
+import com.cmt.singularity.assertion.Assert;
 import com.cmt.singularity.tasks.StandardTasks;
 import com.cmt.singularity.tasks.Tasks;
 
@@ -35,6 +36,9 @@ import com.cmt.singularity.tasks.Tasks;
 public class StandardSingularity implements Singularity
 {
 
+	@SuppressWarnings("FieldNameHidesFieldInSuperclass")
+	public final static Assert assertion = Assert.getAssert(StandardSingularity.class.getName());
+
 	protected Tasks tasks;
 
 	protected Configuration configuration;
@@ -44,6 +48,8 @@ public class StandardSingularity implements Singularity
 	@Override
 	public void init(Configuration configuration)
 	{
+		assertion.assertNotNull(configuration, "configuration != null");
+
 		this.configuration = configuration;
 
 		tasks = new StandardTasks(configuration);

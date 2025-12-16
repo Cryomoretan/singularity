@@ -25,6 +25,7 @@
 //</editor-fold>
 package com.cmt.singularity;
 
+import com.cmt.singularity.assertion.Assert;
 import com.cmt.singularity.tasks.Tasks;
 import java.lang.reflect.InvocationTargetException;
 
@@ -35,9 +36,15 @@ import java.lang.reflect.InvocationTargetException;
 public interface Singularity
 {
 
+	public final static Assert assertion = Assert.getAssert(Singularity.class.getName());
+
 	public static Singularity create(Configuration configuration)
 	{
+		assertion.assertNotNull(configuration, "configuration != null");
+		assertion.assertNotNull(configuration.getSingularityClass(), "configuration.getSingularityClass() != null");
+
 		try {
+
 			Singularity singularity = configuration.getSingularityClass().getConstructor().newInstance();
 
 			singularity.init(configuration);
