@@ -146,30 +146,20 @@ public class StandardConfiguration implements Configuration
 
 		if (targetClass.equals(String.class)) {
 			return (TargetType) value.toString();
-		}
-
-		// Support string value in config being converted to Boolean
-		if (targetClass.equals(Boolean.class) && value instanceof String string) {
+		} // Support string value in config being converted to Boolean
+		else if (targetClass.equals(Boolean.class) && value instanceof String string) {
 			return (TargetType) Boolean.valueOf(string);
-		}
-
-		// Support string value in config being converted to Integer
-		if (targetClass.equals(Integer.class) && value instanceof String string) {
+		} // Support string value in config being converted to Integer
+		else if (targetClass.equals(Integer.class) && value instanceof String string) {
 			return (TargetType) Integer.valueOf(string);
-		}
-
-		// Support string value in config being converted to Float
-		if (targetClass.equals(Float.class) && value instanceof String string) {
+		} // Support string value in config being converted to Float
+		else if (targetClass.equals(Float.class) && value instanceof String string) {
 			return (TargetType) Float.valueOf(string);
-		}
-
-		// Support string value in config being converted to Long
-		if (targetClass.equals(Long.class) && value instanceof String string) {
+		} // Support string value in config being converted to Long
+		else if (targetClass.equals(Long.class) && value instanceof String string) {
 			return (TargetType) Long.valueOf(string);
-		}
-
-		// Support string value in config being converted to Double
-		if (targetClass.equals(Double.class) && value instanceof String string) {
+		} // Support string value in config being converted to Double
+		else if (targetClass.equals(Double.class) && value instanceof String string) {
 			return (TargetType) Double.valueOf(string);
 		}
 
