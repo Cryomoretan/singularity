@@ -61,6 +61,10 @@ public interface Configuration
 
 	void setFixed(String key, Object value);
 
+	void setIfAbsent(String key, Object value);
+
+	void setFixedIfAbsent(String key, Object value);
+
 	Object get(String key);
 
 	Object get(String key, Object defaultValue);

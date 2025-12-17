@@ -48,7 +48,25 @@ public class StandardConfiguration implements Configuration
 	@Override
 	public void init(String... args)
 	{
-		// @todo What to be done with the args?
+		if (args != null) {
+			for (String arg : args) {
+				String[] argParts = arg.split("=");
+
+				// Handle -X=value
+				if (argParts.length > 0 && argParts.length < 3) {
+
+					String key = argParts[0].substring(1).trim();
+
+					String value = "true";
+
+					if (argParts.length == 2) {
+						value = argParts[1].trim();
+					}
+
+					properties.put(key, value);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -68,6 +86,25 @@ public class StandardConfiguration implements Configuration
 
 		// @todo handle fixed config values
 		properties.put(key, value);
+	}
+
+	@Override
+	public void setIfAbsent(String key, Object value)
+	{
+		assertion.assertNotNull(key, "key != null");
+		assertion.assertNotNull(value, "value != null");
+
+		properties.putIfAbsent(key, value);
+	}
+
+	@Override
+	public void setFixedIfAbsent(String key, Object value)
+	{
+		assertion.assertNotNull(key, "key != null");
+		assertion.assertNotNull(value, "value != null");
+
+		// @todo handle fixed config values
+		properties.putIfAbsent(key, value);
 	}
 
 	@Override
