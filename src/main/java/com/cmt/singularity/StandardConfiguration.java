@@ -129,100 +129,147 @@ public class StandardConfiguration implements Configuration
 		return value;
 	}
 
+	protected <TargetType> TargetType getConvert(String key, Class<TargetType> targetClass, TargetType defaultValue)
+	{
+		assertion.assertNotNull(key, "key != null");
+		assertion.assertNotNull(targetClass, "targetClass != null");
+
+		Object value = properties.get(key);
+
+		if (value == null) {
+			return defaultValue;
+		}
+
+		if (targetClass.equals(Object.class)) {
+			return (TargetType) value;
+		}
+
+		if (targetClass.equals(String.class)) {
+			return (TargetType) value.toString();
+		}
+
+		// Support string value in config being converted to Boolean
+		if (targetClass.equals(Boolean.class) && value instanceof String string) {
+			return (TargetType) Boolean.valueOf(string);
+		}
+
+		// Support string value in config being converted to Integer
+		if (targetClass.equals(Integer.class) && value instanceof String string) {
+			return (TargetType) Integer.valueOf(string);
+		}
+
+		// Support string value in config being converted to Float
+		if (targetClass.equals(Float.class) && value instanceof String string) {
+			return (TargetType) Float.valueOf(string);
+		}
+
+		// Support string value in config being converted to Long
+		if (targetClass.equals(Long.class) && value instanceof String string) {
+			return (TargetType) Long.valueOf(string);
+		}
+
+		// Support string value in config being converted to Double
+		if (targetClass.equals(Double.class) && value instanceof String string) {
+			return (TargetType) Double.valueOf(string);
+		}
+
+		return (TargetType) value;
+	}
+
 	@Override
 	public String getString(String key)
 	{
-		return (String) get(key);
+		return getConvert(key, String.class, null);
 	}
 
 	@Override
 	public String getString(String key, String defaultValue)
 	{
-		return (String) get(key, defaultValue);
+		return getConvert(key, String.class, defaultValue);
 	}
 
 	@Override
 	public boolean getBoolean(String key)
 	{
-		return (Boolean) get(key);
+		return getConvert(key, Boolean.class, null);
 	}
 
 	@Override
 	public boolean getBoolean(String key, boolean defaultValue)
 	{
-		return (Boolean) get(key, defaultValue);
+		return getConvert(key, Boolean.class, defaultValue);
 	}
 
 	@Override
 	public int getInt(String key)
 	{
-		return (Integer) get(key);
+		return getConvert(key, Integer.class, null);
 	}
 
 	@Override
 	public int getInt(String key, int defaultValue)
 	{
-		return (Integer) get(key, defaultValue);
+		return getConvert(key, Integer.class, defaultValue);
 	}
 
 	@Override
 	public long getLong(String key)
 	{
-		return (Long) get(key);
+		return getConvert(key, Long.class, null);
 	}
 
 	@Override
 	public long getLong(String key, long defaultValue)
 	{
-		return (Long) get(key, defaultValue);
+		return getConvert(key, Long.class, defaultValue);
 	}
 
 	@Override
 	public float getFloat(String key)
 	{
-		return (Float) get(key);
+		return getConvert(key, Float.class, null);
 	}
 
 	@Override
 	public float getFloat(String key, float defaultValue)
 	{
-		return (Float) get(key, defaultValue);
+		return getConvert(key, Float.class, defaultValue);
 	}
 
 	@Override
 	public double getDouble(String key)
 	{
-		return (Integer) get(key);
+		return getConvert(key, Double.class, null);
 	}
 
 	@Override
 	public double getDouble(String key, double defaultValue)
 	{
-		return (Integer) get(key, defaultValue);
+		return getConvert(key, Double.class, defaultValue);
 	}
 
 	@Override
 	public short getShort(String key)
 	{
-		return (Short) get(key);
+		return getConvert(key, Short.class, null);
 	}
 
 	@Override
 	public short getShort(String key, short defaultValue)
 	{
-		return (Short) get(key, defaultValue);
+		return getConvert(key, Short.class, defaultValue);
 	}
 
 	@Override
 	public <ResultType> ResultType getAs(String key, Class<ResultType> type)
 	{
-		return (ResultType) get(key);
+		return getConvert(key, type, null);
 	}
 
 	@Override
 	public <ResultType> ResultType getAs(String key, ResultType defaultValue, Class<ResultType> type)
 	{
-		return (ResultType) get(key, defaultValue);
+		return getConvert(key, type, defaultValue);
 	}
 
 	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
