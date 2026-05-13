@@ -23,46 +23,47 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity;
+package com.cmt.singularity.tasks;
 
+import com.cmt.singularity.Configuration;
+import com.cmt.singularity.ConfigurationAccessor;
 import com.cmt.singularity.assertion.Assert;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public final class SingularityClassConfigurationAccessor implements ConfigurationAccessor
+public final class TaskGroupLog implements ConfigurationAccessor
 {
 
-	public final static Assert assertion = Assert.getAssert(SingularityClassConfigurationAccessor.class.getName());
+	public final static Assert assertion = Assert.getAssert(TaskGroupLog.class.getName());
 
 	/**
-	 * Key in config for singularityClass
+	 * Key in config for taskGroupLog
 	 */
-	public final static String KEY = "com.cmt.singularity.singularityClass";
+	public static final String KEY = "com.cmt.singularity.tasks.taskGroupLog";
 
 	/**
-	 * Default in config for singularityClass
+	 * Default in config for taskGroupLog
 	 */
-	public final static Class<? extends Singularity> DEFAULT = StandardSingularity.class;
+	public static final boolean DEFAULT = false;
 
-	public static Class<? extends Singularity> getSingularityClass(Configuration configuration)
+	public static boolean get(Configuration configuration)
 	{
 		assertion.assertNotNull(configuration, "configuration != null");
 
-		return configuration.getAs(KEY, DEFAULT, Class.class);
+		return configuration.getBoolean(KEY, DEFAULT);
 	}
 
-	public static void setSingularityClass(Configuration configuration, Class<? extends Singularity> singularityClass)
+	public static void set(Configuration configuration, boolean taskGroupLog)
 	{
 		assertion.assertNotNull(configuration, "configuration != null");
-		assertion.assertNotNull(singularityClass, "singularityClass != null");
 
-		configuration.set(KEY, singularityClass);
+		configuration.set(KEY, taskGroupLog);
 	}
 
 	@SuppressWarnings("unused")
-	private SingularityClassConfigurationAccessor()
+	private TaskGroupLog()
 	{
 		// NEVER INSTANTIATED
 	}

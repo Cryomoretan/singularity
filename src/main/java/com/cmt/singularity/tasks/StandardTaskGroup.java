@@ -27,7 +27,6 @@ package com.cmt.singularity.tasks;
 
 import com.cmt.singularity.Configuration;
 import com.cmt.singularity.assertion.Assert;
-import static com.cmt.singularity.tasks.TaskGroupLogConfigurationAccessor.getTaskGroupLog;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.util.UUID;
@@ -218,7 +217,7 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 			workers[i].start();
 		}
 
-		logTasks = getTaskGroupLog(configuration);
+		logTasks = TaskGroupLog.get(configuration);
 	}
 
 	@Override

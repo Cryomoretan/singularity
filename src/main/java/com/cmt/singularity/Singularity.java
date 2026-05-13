@@ -26,7 +26,6 @@
 package com.cmt.singularity;
 
 import com.cmt.singularity.assertion.Assert;
-import static com.cmt.singularity.SingularityClassConfigurationAccessor.getSingularityClass;
 import com.cmt.singularity.tasks.Tasks;
 import java.lang.reflect.InvocationTargetException;
 
@@ -42,11 +41,11 @@ public interface Singularity
 	public static Singularity create(Configuration configuration)
 	{
 		assertion.assertNotNull(configuration, "configuration != null");
-		assertion.assertNotNull(getSingularityClass(configuration), "configuration.getSingularityClass() != null");
+		assertion.assertNotNull(SingularityClass.get(configuration), "configuration.getSingularityClass() != null");
 
 		try {
 
-			Singularity singularity = getSingularityClass(configuration).getConstructor().newInstance();
+			Singularity singularity = SingularityClass.get(configuration).getConstructor().newInstance();
 
 			singularity.init(configuration);
 

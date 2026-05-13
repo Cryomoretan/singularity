@@ -23,47 +23,46 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
+package com.cmt.singularity;
 
-import com.cmt.singularity.Configuration;
-import com.cmt.singularity.ConfigurationAccessor;
 import com.cmt.singularity.assertion.Assert;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public final class TaskGroupLogConfigurationAccessor implements ConfigurationAccessor
+public final class SingularityClass implements ConfigurationAccessor
 {
 
-	public final static Assert assertion = Assert.getAssert(TaskGroupLogConfigurationAccessor.class.getName());
+	public final static Assert assertion = Assert.getAssert(SingularityClass.class.getName());
 
 	/**
-	 * Key in config for taskGroupLog
+	 * Key in config for singularityClass
 	 */
-	public static final String KEY = "com.cmt.singularity.tasks.taskGroupLog";
+	public final static String KEY = "com.cmt.singularity.singularityClass";
 
 	/**
-	 * Default in config for taskGroupLog
+	 * Default in config for singularityClass
 	 */
-	public static final boolean DEFAULT = false;
+	public final static Class<? extends Singularity> DEFAULT = StandardSingularity.class;
 
-	public static boolean getTaskGroupLog(Configuration configuration)
+	public static Class<? extends Singularity> get(Configuration configuration)
 	{
 		assertion.assertNotNull(configuration, "configuration != null");
 
-		return configuration.getBoolean(KEY, DEFAULT);
+		return configuration.getAs(KEY, DEFAULT, Class.class);
 	}
 
-	public static void setTaskGroupLog(Configuration configuration, boolean taskGroupLog)
+	public static void set(Configuration configuration, Class<? extends Singularity> singularityClass)
 	{
 		assertion.assertNotNull(configuration, "configuration != null");
+		assertion.assertNotNull(singularityClass, "singularityClass != null");
 
-		configuration.set(KEY, taskGroupLog);
+		configuration.set(KEY, singularityClass);
 	}
 
 	@SuppressWarnings("unused")
-	private TaskGroupLogConfigurationAccessor()
+	private SingularityClass()
 	{
 		// NEVER INSTANTIATED
 	}
