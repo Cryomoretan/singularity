@@ -36,8 +36,13 @@ public final class Assert
 
 	public final static Assert getAssert(String module)
 	{
+		return getAssert(module, true);
+	}
+
+	public final static Assert getAssert(String module, boolean active)
+	{
 		// @todo Work on assertion pattern in combination with Configuration
-		return new Assert(true);
+		return new Assert(active);
 	}
 
 	private final boolean active;

@@ -26,6 +26,7 @@
 package com.cmt.singularity.tasks;
 
 import com.cmt.singularity.Configuration;
+import com.cmt.singularity.assertion.Assert;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import org.testng.annotations.Test;
@@ -40,6 +41,8 @@ public class TasksTest
 	@SuppressWarnings("unused")
 	private final static Logger log = LogManager.getLogger(TasksTest.class.getName());
 
+	public final static Assert assertion = Assert.getAssert(TasksTest.class.getName());
+
 	// Few lines for an own task implementation - but provides more options than using Runnable ad hoc tasks
 	protected final static class TestTask implements Task
 	{
@@ -47,14 +50,14 @@ public class TasksTest
 		@Override
 		public void execute()
 		{
-			log.debug("TestTask.execute");
+			log.trace("TestTask.execute");
 		}
 	}
 
 	@Test
 	public void runSimpleTask()
 	{
-		log.debug("runSimpleTask:enter");
+		log.trace("runSimpleTask:enter");
 		log.start("runSimpleTask");
 
 		Configuration configuration = Configuration.create();
@@ -66,7 +69,7 @@ public class TasksTest
 
 		// Ad hoc task from Runnable lambda
 		Task task = group.asTask(() -> {
-			log.debug("RunnableTask.run");
+			log.trace("RunnableTask.run");
 		});
 
 		// Create own task implementation
@@ -78,7 +81,7 @@ public class TasksTest
 		// Wait for all tasks to be done
 		group.join();
 
-		log.stopDebug("runSimpleTask");
+		log.stopTrace("runSimpleTask");
 	}
 
 	/**
@@ -88,7 +91,7 @@ public class TasksTest
 	@Test
 	public void runStructuredTasks()
 	{
-		log.debug("runStructuredTasks");
+		log.trace("runStructuredTasks");
 		log.start("runStructuredTasks");
 
 		Configuration configuration = Configuration.create();
@@ -108,24 +111,24 @@ public class TasksTest
 			// Process data1
 			() -> {
 
-				log.debug("runStructuredTasks:workerGroup1:parallelBefore:start");
+				log.trace("runStructuredTasks:workerGroup1:parallelBefore:start");
 
 				for (int i = 0; i < data1.length; ++i) {
 					data1[i] = data1[i] + 1.25f;
 				}
 
-				log.debug("runStructuredTasks:workerGroup1:parallelBefore:done");
+				log.trace("runStructuredTasks:workerGroup1:parallelBefore:done");
 			},
 			// Process data2
 			() -> {
 
-				log.debug("runStructuredTasks:workerGroup2:parallelBefore:start");
+				log.trace("runStructuredTasks:workerGroup2:parallelBefore:start");
 
 				for (int i = 0; i < data2.length; ++i) {
 					data2[i] = data2[i] * data2[i];
 				}
 
-				log.debug("runStructuredTasks:workerGroup2:parallelBefore:done");
+				log.trace("runStructuredTasks:workerGroup2:parallelBefore:done");
 			}
 		);
 
@@ -134,21 +137,21 @@ public class TasksTest
 			// Process data1 and data 2
 			mainGroup.asTask(() -> {
 
-				log.debug("runStructuredTasks:mainGroup:parallelAfter:start");
+				log.trace("runStructuredTasks:mainGroup:parallelAfter:start");
 
 				for (int i = 0; i < data1.length; ++i) {
 					dataFinal[i] = data1[i] * data2[i];
 
-					log.debug("Final", i, ":", dataFinal[i]);
+					log.trace("Final", i, ":", dataFinal[i]);
 				}
 
-				log.debug("runStructuredTasks:mainGroup:parallelAfter:done");
+				log.trace("runStructuredTasks:mainGroup:parallelAfter:done");
 			}));
 
 		// Wait for all tasks to be done and end properly
 		tasks.endGracefully();
 
-		log.stopDebug("runStructuredTasks");
+		log.stopTrace("runStructuredTasks");
 	}
 
 }

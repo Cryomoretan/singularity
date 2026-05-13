@@ -2,7 +2,7 @@
 /*
  * The MIT License
  *
- * Copyright 2025 Cryomoretan GmbH.
+ * Copyright 2026 Cryomoretan GmbH.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,42 +23,48 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity;
+package com.cmt.singularity.tasks;
 
+import com.cmt.singularity.Configuration;
+import com.cmt.singularity.ConfigurationAccessor;
 import com.cmt.singularity.assertion.Assert;
-import static com.cmt.singularity.SingularityClassConfigurationAccessor.getSingularityClass;
-import com.cmt.singularity.tasks.Tasks;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public interface Singularity
+public final class TaskGroupLogConfigurationAccessor implements ConfigurationAccessor
 {
 
-	public final static Assert assertion = Assert.getAssert(Singularity.class.getName());
+	public final static Assert assertion = Assert.getAssert(TaskGroupLogConfigurationAccessor.class.getName());
 
-	public static Singularity create(Configuration configuration)
+	/**
+	 * Key in config for taskGroupLog
+	 */
+	public static final String CONFIGURATION_TASK_GROUP_LOG_KEY = "com.cmt.singularity.tasks.taskGroupLog";
+
+	/**
+	 * Default in config for taskGroupLog
+	 */
+	public static final boolean CONFIGURATION_TASK_GROUP_LOG_DEFAULT = false;
+
+	public static boolean getTaskGroupLog(Configuration configuration)
 	{
 		assertion.assertNotNull(configuration, "configuration != null");
-		assertion.assertNotNull(getSingularityClass(configuration), "configuration.getSingularityClass() != null");
 
-		try {
-
-			Singularity singularity = getSingularityClass(configuration).getConstructor().newInstance();
-
-			singularity.init(configuration);
-
-			return singularity;
-		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | InvocationTargetException ex) {
-			throw new RuntimeException(ex);
-		}
+		return configuration.getBoolean(CONFIGURATION_TASK_GROUP_LOG_KEY, CONFIGURATION_TASK_GROUP_LOG_DEFAULT);
 	}
 
-	void init(Configuration configuration);
+	public static void setTaskGroupLog(Configuration configuration, boolean taskGroupLog)
+	{
+		assertion.assertNotNull(configuration, "configuration != null");
 
-	Tasks getTasks();
+		configuration.set(CONFIGURATION_TASK_GROUP_LOG_KEY, taskGroupLog);
+	}
 
-	Configuration getConfiguration();
+	@SuppressWarnings("unused")
+	private TaskGroupLogConfigurationAccessor()
+	{
+		// NEVER INSTANTIATED
+	}
 }

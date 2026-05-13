@@ -2,7 +2,7 @@
 /*
  * The MIT License
  *
- * Copyright 2025 Cryomoretan GmbH.
+ * Copyright 2026 Cryomoretan GmbH.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,40 +25,11 @@
 //</editor-fold>
 package com.cmt.singularity;
 
-import com.cmt.singularity.assertion.Assert;
-import static com.cmt.singularity.SingularityClassConfigurationAccessor.getSingularityClass;
-import com.cmt.singularity.tasks.Tasks;
-import java.lang.reflect.InvocationTargetException;
-
 /**
  *
  * @author Benjamin Schiller
  */
-public interface Singularity
+public interface ConfigurationAccessor
 {
 
-	public final static Assert assertion = Assert.getAssert(Singularity.class.getName());
-
-	public static Singularity create(Configuration configuration)
-	{
-		assertion.assertNotNull(configuration, "configuration != null");
-		assertion.assertNotNull(getSingularityClass(configuration), "configuration.getSingularityClass() != null");
-
-		try {
-
-			Singularity singularity = getSingularityClass(configuration).getConstructor().newInstance();
-
-			singularity.init(configuration);
-
-			return singularity;
-		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | InvocationTargetException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-
-	void init(Configuration configuration);
-
-	Tasks getTasks();
-
-	Configuration getConfiguration();
 }

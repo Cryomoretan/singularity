@@ -261,19 +261,4 @@ public class StandardConfiguration implements Configuration
 	{
 		return getConvert(key, type, defaultValue);
 	}
-
-	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
-	@Override
-	public Class<? extends Singularity> getSingularityClass()
-	{
-		return getAs(CONFIGURATION_SINGULARITY_CLASS_KEY, CONFIGURATION_SINGULARITY_CLASS_DEFAULT, Class.class);
-	}
-
-	public void setSingularityClass(Class<? extends Singularity> singularityClass)
-	{
-		assertion.assertNotNull(singularityClass, "singularityClass != null");
-
-		set(CONFIGURATION_SINGULARITY_CLASS_KEY, singularityClass);
-	}
-	// "Getters/Setters" </editor-fold>´
 }

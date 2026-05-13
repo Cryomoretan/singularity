@@ -27,6 +27,7 @@ package com.cmt.singularity.tasks;
 
 import com.cmt.singularity.Configuration;
 import com.cmt.singularity.assertion.Assert;
+import static com.cmt.singularity.tasks.TaskGroupLogConfigurationAccessor.getTaskGroupLog;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
 import java.util.UUID;
@@ -47,7 +48,7 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 
 	private final static Assert assertion = Assert.getAssert(StandardTaskGroup.class.getName());
 
-	public static class StandardTaskWrapperTask implements Task
+	public final static class StandardTaskWrapperTask implements Task
 	{
 
 		protected final Task task;
@@ -217,7 +218,7 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 			workers[i].start();
 		}
 
-		logTasks = configuration.getBoolean(COFIGURATION_TASK_GROUP_LOG_KEY, COFIGURATION_TASK_GROUP_LOG_DEFAULT);
+		logTasks = getTaskGroupLog(configuration);
 	}
 
 	@Override

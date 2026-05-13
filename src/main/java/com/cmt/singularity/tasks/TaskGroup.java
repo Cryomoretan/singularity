@@ -37,16 +37,6 @@ public interface TaskGroup
 {
 
 	/**
-	 * Key to configurate task groups to log calling and performance of actions
-	 */
-	public static final String COFIGURATION_TASK_GROUP_LOG_KEY = "com.cmt.singularity.tasks.TaskGroup.log";
-
-	/**
-	 * Default to configurate task groups to log calling and performance of actions = false
-	 */
-	public static final boolean COFIGURATION_TASK_GROUP_LOG_DEFAULT = false;
-
-	/**
 	 * The name of this task group.
 	 *
 	 * @return

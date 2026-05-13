@@ -33,16 +33,6 @@ public interface Configuration
 {
 
 	/**
-	 * Key in config for singularityClass
-	 */
-	public final static String CONFIGURATION_SINGULARITY_CLASS_KEY = "com.cmt.singularity.Configuration.singularityClass";
-
-	/**
-	 * Default in config for singularityClass
-	 */
-	public final static Class<? extends Singularity> CONFIGURATION_SINGULARITY_CLASS_DEFAULT = StandardSingularity.class;
-
-	/**
 	 * Returns a newly created and inited Configuration.
 	 *
 	 * @param args
@@ -107,11 +97,4 @@ public interface Configuration
 	 * @param args
 	 */
 	void init(String... args);
-
-	/**
-	 * Returns the configured singularityClass.
-	 *
-	 * @return
-	 */
-	Class<? extends Singularity> getSingularityClass();
 }
