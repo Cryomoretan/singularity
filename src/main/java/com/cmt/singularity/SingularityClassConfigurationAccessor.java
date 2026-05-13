@@ -25,10 +25,6 @@
 //</editor-fold>
 package com.cmt.singularity;
 
-import com.cmt.singularity.Configuration;
-import com.cmt.singularity.ConfigurationAccessor;
-import com.cmt.singularity.Singularity;
-import com.cmt.singularity.StandardSingularity;
 import com.cmt.singularity.assertion.Assert;
 
 /**
@@ -43,18 +39,18 @@ public final class SingularityClassConfigurationAccessor implements Configuratio
 	/**
 	 * Key in config for singularityClass
 	 */
-	public final static String CONFIGURATION_SINGULARITY_CLASS_KEY = "com.cmt.singularity.singularityClass";
+	public final static String KEY = "com.cmt.singularity.singularityClass";
 
 	/**
 	 * Default in config for singularityClass
 	 */
-	public final static Class<? extends Singularity> CONFIGURATION_SINGULARITY_CLASS_DEFAULT = StandardSingularity.class;
+	public final static Class<? extends Singularity> DEFAULT = StandardSingularity.class;
 
 	public static Class<? extends Singularity> getSingularityClass(Configuration configuration)
 	{
 		assertion.assertNotNull(configuration, "configuration != null");
 
-		return configuration.getAs(CONFIGURATION_SINGULARITY_CLASS_KEY, CONFIGURATION_SINGULARITY_CLASS_DEFAULT, Class.class);
+		return configuration.getAs(KEY, DEFAULT, Class.class);
 	}
 
 	public static void setSingularityClass(Configuration configuration, Class<? extends Singularity> singularityClass)
@@ -62,7 +58,7 @@ public final class SingularityClassConfigurationAccessor implements Configuratio
 		assertion.assertNotNull(configuration, "configuration != null");
 		assertion.assertNotNull(singularityClass, "singularityClass != null");
 
-		configuration.set(CONFIGURATION_SINGULARITY_CLASS_KEY, singularityClass);
+		configuration.set(KEY, singularityClass);
 	}
 
 	@SuppressWarnings("unused")

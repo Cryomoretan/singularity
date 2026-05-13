@@ -41,25 +41,25 @@ public final class TaskGroupLogConfigurationAccessor implements ConfigurationAcc
 	/**
 	 * Key in config for taskGroupLog
 	 */
-	public static final String CONFIGURATION_TASK_GROUP_LOG_KEY = "com.cmt.singularity.tasks.taskGroupLog";
+	public static final String KEY = "com.cmt.singularity.tasks.taskGroupLog";
 
 	/**
 	 * Default in config for taskGroupLog
 	 */
-	public static final boolean CONFIGURATION_TASK_GROUP_LOG_DEFAULT = false;
+	public static final boolean DEFAULT = false;
 
 	public static boolean getTaskGroupLog(Configuration configuration)
 	{
 		assertion.assertNotNull(configuration, "configuration != null");
 
-		return configuration.getBoolean(CONFIGURATION_TASK_GROUP_LOG_KEY, CONFIGURATION_TASK_GROUP_LOG_DEFAULT);
+		return configuration.getBoolean(KEY, DEFAULT);
 	}
 
 	public static void setTaskGroupLog(Configuration configuration, boolean taskGroupLog)
 	{
 		assertion.assertNotNull(configuration, "configuration != null");
 
-		configuration.set(CONFIGURATION_TASK_GROUP_LOG_KEY, taskGroupLog);
+		configuration.set(KEY, taskGroupLog);
 	}
 
 	@SuppressWarnings("unused")
