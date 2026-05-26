@@ -23,58 +23,14 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
-
-import com.cmt.singularity.assertion.Assert;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+package com.cmt.singularity.memory;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public class StandardTaskBarrier implements TaskBarrier
+public interface Memory
 {
 
-	private final static Assert assertion = Assert.getAssert(StandardTaskBarrier.class.getName());
-
-	protected final CountDownLatch latch;
-
-	public StandardTaskBarrier(int count)
-	{
-		assertion.assertTrue(count > 0, "count > 0");
-
-		latch = new CountDownLatch(count);
-	}
-
-	@Override
-	public void await()
-	{
-		try {
-			latch.await();
-		} catch (InterruptedException ex) {
-			// @todo Add error handling
-			throw new RuntimeException();
-		}
-	}
-
-	@Override
-	public void await(long timeOut, TimeUnit unit)
-	{
-		assertion.assertTrue(timeOut >= 0, "timeOut >= 0");
-		assertion.assertNotNull(unit, "unit != null");
-
-		try {
-			latch.await(timeOut, unit);
-		} catch (InterruptedException ex) {
-			// @todo Add error handling
-			throw new RuntimeException();
-		}
-	}
-
-	@Override
-	public void arrive()
-	{
-		latch.countDown();
-	}
+	MemoryBlock getTransient();
 }

@@ -23,70 +23,36 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
+package com.cmt.singularity.compute;
 
-import java.util.Optional;
-import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
- * The Tasks provides the global management of running asynchronous tasks. The task running is handled through
- * TaskGroups.
+ * The TaskBarrier represents a concurrency barrier for awaiting task execution to have been finished (task left the
+ * execute() method). await(...) is used to wait for arrival. arrive() signal an arrival. The guarantuee is that all
+ * necessary arrivals have happened before the awaiting return.
  *
  * @author Benjamin Schiller
  */
-public interface Tasks
+public interface TaskBarrier
 {
 
 	/**
-	 * Creates and registers the task group in this tasks.
-	 *
-	 * @param name
-	 * @param poolSize
-	 * @param queueSize
-	 * @param daemon
-	 * @return
+	 * Awaits this barrier to be arrived.
 	 */
-	TaskGroup createTaskGroup(String name, int poolSize, int queueSize, boolean daemon);
+	void await();
 
 	/**
-	 * Returns a Set of the task groups at call time. Changes of tasks groups are not reflected.
+	 * Awaits this barrier to be arrived up to timeOut units then returns. The timeout shall not exceed the timeOut
+	 * units.
 	 *
-	 * @return
+	 * @param timeOut
+	 * @param unit
 	 */
-	Set<TaskGroup> getTaskGroups();
+	void await(long timeOut, TimeUnit unit);
 
 	/**
-	 * Optionally returns the first task group with the the given name.
-	 *
-	 * @param name
-	 * @return
+	 * Signals that it was arrived at this barrier. Will potentially cause all awating to be returning.
 	 */
-	Optional<TaskGroup> getTaskGroupByName(String name);
-
-	/**
-	 * Waits till ALL tasks in that group have been processed - means no tasks in queue and all tasks that were
-	 * processed exited their execute() method.
-	 */
-	void join();
-
-	/**
-	 * Requests ALL task groups to end and returns a barrier to wait for all tasks to have ended (like join).
-	 *
-	 * @return
-	 */
-	TaskBarrier endGracefully();
-
-	/**
-	 * Signals if the tasks are ending or ended
-	 *
-	 * @return
-	 */
-	boolean isEnding();
-
-	/**
-	 * Signals if the tasks are ended
-	 *
-	 * @return
-	 */
-	boolean isEnded();
+	void arrive();
 }

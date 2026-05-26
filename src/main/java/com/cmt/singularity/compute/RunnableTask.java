@@ -23,37 +23,32 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
+package com.cmt.singularity.compute;
 
 import com.cmt.singularity.assertion.Assert;
-import java.util.concurrent.Callable;
 
 /**
- * This task is a wrapper for callables.
+ * This task is a wrapper for runnables.
  *
  * @author Benjamin Schiller
  */
-public class CallableTask implements Task
+public class RunnableTask implements Task
 {
 
-	private final static Assert assertion = Assert.getAssert(CallableTask.class.getName());
+	private final static Assert assertion = Assert.getAssert(RunnableTask.class.getName());
 
-	protected final Callable callable;
+	protected final Runnable runnable;
 
-	public CallableTask(Callable callable)
+	public RunnableTask(Runnable runnable)
 	{
-		assertion.assertNotNull(callable, "callable != null");
+		assertion.assertNotNull(runnable, "runnable != null");
 
-		this.callable = callable;
+		this.runnable = runnable;
 	}
 
 	@Override
 	public void execute()
 	{
-		try {
-			callable.call();
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
+		runnable.run();
 	}
 }

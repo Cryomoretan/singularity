@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity;
+package com.cmt.singularity.memory;
 
 import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
@@ -32,38 +32,39 @@ import org.testng.annotations.Test;
  *
  * @author Benjamin Schiller
  */
-public class StandardConfigurationTest
+public class StandardMemoryTest
 {
 
 	@Test
 	public void testSimpleUsage()
 	{
-		Configuration configuration = Configuration.create();
+		Memory memory = new StandardMemory();
+		MemoryBlock memoryBlock = memory.getTransient();
 
 		// Try to get a not set property
-		assertEquals(configuration.get("testSimpleUsage.NotSet"), null);
+		assertEquals(memoryBlock.get("testSimpleUsage.NotSet"), null);
 
 		// Set a string and get it in different ways
-		configuration.set("testSimpleUsage.obj", "Test");
-		assertEquals(configuration.get("testSimpleUsage.obj"), "Test");
-		assertEquals(configuration.get("testSimpleUsage.obj", "Fail"), "Test");
+		memoryBlock.set("testSimpleUsage.obj", "Test");
+		assertEquals(memoryBlock.get("testSimpleUsage.obj"), "Test");
+		assertEquals(memoryBlock.get("testSimpleUsage.obj", "Fail"), "Test");
 
 		// Set an int and get it in different ways
-		configuration.set("testSimpleUsage.string", "Test");
-		assertEquals(configuration.getString("testSimpleUsage.string"), "Test");
-		assertEquals(configuration.getString("testSimpleUsage.string", "Fail"), "Test");
+		memoryBlock.set("testSimpleUsage.string", "Test");
+		assertEquals(memoryBlock.getString("testSimpleUsage.string"), "Test");
+		assertEquals(memoryBlock.getString("testSimpleUsage.string", "Fail"), "Test");
 
 		// Set an int and get it in different ways
-		configuration.set("testSimpleUsage.int", 1);
-		assertEquals(configuration.get("testSimpleUsage.int"), 1);
-		assertEquals(configuration.getInt("testSimpleUsage.int"), 1);
-		assertEquals(configuration.getInt("testSimpleUsage.int", 2), 1);
+		memoryBlock.set("testSimpleUsage.int", 1);
+		assertEquals(memoryBlock.get("testSimpleUsage.int"), 1);
+		assertEquals(memoryBlock.getInt("testSimpleUsage.int"), 1);
+		assertEquals(memoryBlock.getInt("testSimpleUsage.int", 2), 1);
 
 		// Set a long and get it in different ways
-		configuration.set("testSimpleUsage.long", 1L);
-		assertEquals(configuration.get("testSimpleUsage.long"), 1L);
-		assertEquals(configuration.getLong("testSimpleUsage.long"), 1L);
-		assertEquals(configuration.getLong("testSimpleUsage.long", 2L), 1L);
+		memoryBlock.set("testSimpleUsage.long", 1L);
+		assertEquals(memoryBlock.get("testSimpleUsage.long"), 1L);
+		assertEquals(memoryBlock.getLong("testSimpleUsage.long"), 1L);
+		assertEquals(memoryBlock.getLong("testSimpleUsage.long", 2L), 1L);
 
 	}
 }

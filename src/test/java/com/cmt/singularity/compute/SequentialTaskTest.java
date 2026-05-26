@@ -23,9 +23,8 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
+package com.cmt.singularity.compute;
 
-import com.cmt.singularity.Configuration;
 import org.testng.Assert;
 import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
@@ -49,9 +48,7 @@ public class SequentialTaskTest
 	@Test
 	public void testExecuteSequentialInOrder()
 	{
-		Configuration configuration = Configuration.create();
-
-		TaskGroup group = new StandardTaskGroup(configuration, "SequentialTaskTest.testExecuteSequentialInOrder", 2, 10, true);
+		ComputeGroup group = new StandardComputeGroup("SequentialTaskTest.testExecuteSequentialInOrder", 2, 10, true);
 
 		Counter counter = new Counter();
 
@@ -80,9 +77,7 @@ public class SequentialTaskTest
 	@Test
 	public void testExecuteEndingEarlyCorrectly()
 	{
-		Configuration configuration = Configuration.create();
-
-		TaskGroup group = new StandardTaskGroup(configuration, "SequentialTaskTest.testExecuteSequentialInOrder", 2, 10, true);
+		ComputeGroup group = new StandardComputeGroup("SequentialTaskTest.testExecuteSequentialInOrder", 2, 10, true);
 
 		Counter counter = new Counter();
 

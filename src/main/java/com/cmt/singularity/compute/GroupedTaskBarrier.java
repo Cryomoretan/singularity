@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
+package com.cmt.singularity.compute;
 
 import com.cmt.singularity.assertion.Assert;
 import java.util.concurrent.TimeUnit;

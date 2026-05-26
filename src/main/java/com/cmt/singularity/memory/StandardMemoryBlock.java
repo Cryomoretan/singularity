@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity;
+package com.cmt.singularity.memory;
 
 import com.cmt.singularity.assertion.Assert;
 import java.util.Map;
@@ -33,18 +33,19 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Benjamin Schiller
  */
-public class StandardConfiguration implements Configuration
+public class StandardMemoryBlock implements MemoryBlock
 {
 
-	public final static Assert assertion = Assert.getAssert(StandardConfiguration.class.getName());
+	public final static Assert assertion = Assert.getAssert(StandardMemoryBlock.class.getName());
 
 	protected final Map<String, Object> properties;
 
-	public StandardConfiguration()
+	public StandardMemoryBlock()
 	{
 		properties = new ConcurrentHashMap<>();
 	}
 
+	/*
 	@Override
 	public void init(String... args)
 	{
@@ -68,7 +69,7 @@ public class StandardConfiguration implements Configuration
 			}
 		}
 	}
-
+	 */
 	@Override
 	public void set(String key, Object value)
 	{
@@ -129,6 +130,7 @@ public class StandardConfiguration implements Configuration
 		return value;
 	}
 
+	@SuppressWarnings("unchecked")
 	protected <TargetType> TargetType getConvert(String key, Class<TargetType> targetClass, TargetType defaultValue)
 	{
 		assertion.assertNotNull(key, "key != null");

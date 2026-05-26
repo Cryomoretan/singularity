@@ -2,7 +2,7 @@
 /*
  * The MIT License
  *
- * Copyright 2026 Cryomoretan GmbH.
+ * Copyright 2025 Cryomoretan GmbH.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,13 +23,38 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity;
+package com.cmt.singularity.compute;
+
+import com.cmt.singularity.assertion.Assert;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
 
 /**
+ * Ends the given tasks gracefully
  *
  * @author Benjamin Schiller
  */
-public interface ConfigurationAccessor
+public class EndGracefully implements Task
 {
 
+	@SuppressWarnings("unused")
+	private final static Logger log = LogManager.getLogger(EndGracefully.class.getName());
+
+	@SuppressWarnings("unused")
+	private final static Assert assertion = Assert.getAssert(EndGracefully.class.getName());
+
+	protected final Compute tasks;
+
+	public EndGracefully(Compute tasks)
+	{
+		assertion.assertNotNull(tasks, "tasks != null");
+
+		this.tasks = tasks;
+	}
+
+	@Override
+	public void execute()
+	{
+		tasks.endGracefully();
+	}
 }

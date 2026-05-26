@@ -23,9 +23,8 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
+package com.cmt.singularity.compute;
 
-import com.cmt.singularity.Configuration;
 import com.cmt.singularity.assertion.Assert;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -40,12 +39,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @author Benjamin Schiller
  */
-public class StandardTaskGroup implements TaskGroup, Comparable
+public final class StandardComputeGroup implements ComputeGroup, Comparable<Object>
 {
 
-	private final static Logger log = LogManager.getLogger(StandardTaskGroup.class.getName());
+	private final static Logger log = LogManager.getLogger(StandardComputeGroup.class.getName());
 
-	private final static Assert assertion = Assert.getAssert(StandardTaskGroup.class.getName());
+	private final static Assert assertion = Assert.getAssert(StandardComputeGroup.class.getName());
 
 	public final static class StandardTaskWrapperTask implements Task
 	{
@@ -174,7 +173,7 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 			}
 
 			if (allEnded) {
-				StandardTaskGroup.this.ended = true;
+				StandardComputeGroup.this.ended = true;
 			}
 
 			log.trace("Exiting", getName());
@@ -183,19 +182,18 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 		}
 	}
 
-	protected final String name;
-	protected final Worker[] workers;
-	protected final BlockingQueue<Task> queue;
-	protected final AtomicInteger runningWorkerTasks;
-	protected final Object workerMonitor;
-	protected final boolean logTasks;
-	protected boolean ending;
-	protected boolean ended;
+	private final String name;
+	private final Worker[] workers;
+	private final BlockingQueue<Task> queue;
+	private final AtomicInteger runningWorkerTasks;
+	private final Object workerMonitor;
+	private final boolean logTasks;
+	private boolean ending;
+	private boolean ended;
 
 	@SuppressWarnings("CallToThreadStartDuringObjectConstruction")
-	public StandardTaskGroup(Configuration configuration, String name, int poolSize, int queueSize, boolean daemon)
+	public StandardComputeGroup(String name, int poolSize, int queueSize, boolean daemon)
 	{
-		assertion.assertNotNull(configuration, "configuration != null");
 		assertion.assertNotNull(name, "name != null");
 		assertion.assertTrue(poolSize > 0, "poolSize > 0");
 		assertion.assertTrue(queueSize > 0, "queueSize > 0");
@@ -207,7 +205,7 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 
 		runningWorkerTasks = new AtomicInteger();
 
-		queue = new ArrayBlockingQueue(queueSize, false);
+		queue = new ArrayBlockingQueue<>(queueSize, false);
 
 		workers = new Worker[poolSize];
 
@@ -217,7 +215,9 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 			workers[i].start();
 		}
 
-		logTasks = TaskGroupLog.get(configuration);
+		// @todo
+		//logTasks = TaskGroupLog.get(configuration);
+		logTasks = false;
 	}
 
 	@Override
@@ -229,7 +229,7 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 	}
 
 	@Override
-	public Task asTask(Callable callable)
+	public Task asTask(Callable<?> callable)
 	{
 		assertion.assertNotNull(callable, "callable != null");
 
@@ -251,7 +251,7 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 	}
 
 	@Override
-	public TaskGroup parallelAfter(TaskBarrier await, Task... tasks)
+	public ComputeGroup parallelAfter(TaskBarrier await, Task... tasks)
 	{
 		assertion.assertNotNull(await, "await != null");
 		assertion.assertNotEmpty(tasks, "tasks not empty");
@@ -264,7 +264,7 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 	}
 
 	@Override
-	public TaskGroup parallel(Task... tasks)
+	public ComputeGroup parallel(Task... tasks)
 	{
 		assertion.assertNotEmpty(tasks, "tasks not empty");
 
@@ -275,14 +275,8 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 		return this;
 	}
 
-	/**
-	 * Runs the given tasks sequential in order. It uses the SequentialTask for it.
-	 *
-	 * @param tasks
-	 * @return
-	 */
 	@Override
-	public TaskGroup sequential(Task... tasks)
+	public ComputeGroup sequential(Task... tasks)
 	{
 		assertion.assertNotEmpty(tasks, "tasks not empty");
 
@@ -294,13 +288,37 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 		return this;
 	}
 
-	/**
-	 * Makes sure the queue is empty and all workers have processed their tasks. Uses suspended waiting
-	 *
-	 * @return
-	 */
 	@Override
-	public TaskGroup join()
+	public TaskBarrier sequentialBefore(Task... tasks)
+	{
+		assertion.assertNotEmpty(tasks, "tasks not empty");
+
+		TaskBarrier arrive = new StandardTaskBarrier(1);
+
+		queue.add(
+			new StandardTaskWrapperTask(
+				new SequentialTask(this, logTasks, tasks), null, arrive, logTasks)
+		);
+
+		return arrive;
+	}
+
+	@Override
+	public ComputeGroup sequentialAfter(TaskBarrier await, Task... tasks)
+	{
+		assertion.assertNotNull(await, "await != null");
+		assertion.assertNotEmpty(tasks, "tasks not empty");
+
+		queue.add(
+			new StandardTaskWrapperTask(
+				new SequentialTask(this, logTasks, tasks), await, null, logTasks)
+		);
+
+		return this;
+	}
+
+	@Override
+	public ComputeGroup join()
 	{
 		log.trace("join:enter");
 
@@ -349,7 +367,7 @@ public class StandardTaskGroup implements TaskGroup, Comparable
 	@Override
 	public int compareTo(Object o)
 	{
-		if (o instanceof TaskGroup taskGroup) {
+		if (o instanceof ComputeGroup taskGroup) {
 			return name.compareTo(taskGroup.getName());
 		}
 

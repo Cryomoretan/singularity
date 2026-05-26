@@ -23,52 +23,58 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
+package com.cmt.singularity.compute;
 
 import com.cmt.singularity.assertion.Assert;
-import com.cmt.singularity.tasks.StandardTaskGroup.StandardTaskWrapperTask;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
- * This task calls the given list of tasks in order
  *
  * @author Benjamin Schiller
  */
-public class SequentialTask implements Task
+public class StandardTaskBarrier implements TaskBarrier
 {
 
-	private final static Assert assertion = Assert.getAssert(SequentialTask.class.getName());
+	private final static Assert assertion = Assert.getAssert(StandardTaskBarrier.class.getName());
 
-	protected final Task[] tasks;
-	protected final TaskGroup group;
-	protected final boolean logTasks;
+	protected final CountDownLatch latch;
 
-	public SequentialTask(TaskGroup group, boolean logTasks, Task... tasks)
+	public StandardTaskBarrier(int count)
 	{
-		assertion.assertNotNull(group, "group != 0");
-		assertion.assertNotEmpty(tasks, "tasks not empty");
+		assertion.assertTrue(count > 0, "count > 0");
 
-		this.group = group;
-		this.logTasks = logTasks;
-		this.tasks = tasks;
+		latch = new CountDownLatch(count);
 	}
 
-	/**
-	 * Execute all tasks sequential in order. between each task the group is checked if it is ending then execution is
-	 * not continued.
-	 */
 	@Override
-	public void execute()
+	public void await()
 	{
-		for (Task task : tasks) {
-
-			// Create and execute wrapper (allowing logging)
-			StandardTaskWrapperTask wrapper = new StandardTaskGroup.StandardTaskWrapperTask(task, null, null, logTasks);
-			wrapper.execute();
-
-			// End early if the group is ending
-			if (group.isEnding()) {
-				break;
-			}
+		try {
+			latch.await();
+		} catch (InterruptedException ex) {
+			// @todo Add error handling
+			throw new RuntimeException();
 		}
+	}
+
+	@Override
+	public void await(long timeOut, TimeUnit unit)
+	{
+		assertion.assertTrue(timeOut >= 0, "timeOut >= 0");
+		assertion.assertNotNull(unit, "unit != null");
+
+		try {
+			latch.await(timeOut, unit);
+		} catch (InterruptedException ex) {
+			// @todo Add error handling
+			throw new RuntimeException();
+		}
+	}
+
+	@Override
+	public void arrive()
+	{
+		latch.countDown();
 	}
 }

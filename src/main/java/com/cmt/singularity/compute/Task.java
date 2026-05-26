@@ -23,36 +23,19 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
-
-import java.util.concurrent.TimeUnit;
+package com.cmt.singularity.compute;
 
 /**
- * The TaskBarrier represents a concurrency barrier for awaiting task execution to have been finished (task left the
- * execute() method). await(...) is used to wait for arrival. arrive() signal an arrival. The guarantuee is that all
- * necessary arrivals have happened before the awaiting return.
+ * Allows the execution of a work unit.
  *
  * @author Benjamin Schiller
  */
-public interface TaskBarrier
+@FunctionalInterface
+public interface Task
 {
 
 	/**
-	 * Awaits this barrier to be arrived.
+	 * Execute this task.
 	 */
-	void await();
-
-	/**
-	 * Awaits this barrier to be arrived up to timeOut units then returns. The timeout shall not exceed the timeOut
-	 * units.
-	 *
-	 * @param timeOut
-	 * @param unit
-	 */
-	void await(long timeOut, TimeUnit unit);
-
-	/**
-	 * Signals that it was arrived at this barrier. Will potentially cause all awating to be returning.
-	 */
-	void arrive();
+	void execute();
 }

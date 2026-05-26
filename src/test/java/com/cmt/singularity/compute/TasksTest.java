@@ -23,9 +23,8 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
+package com.cmt.singularity.compute;
 
-import com.cmt.singularity.Configuration;
 import com.cmt.singularity.assertion.Assert;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -60,12 +59,9 @@ public class TasksTest
 		log.trace("runSimpleTask:enter");
 		log.start("runSimpleTask");
 
-		Configuration configuration = Configuration.create();
-
 		// Easily create a Tasks managing task execution
-		Tasks tasks = new StandardTasks(configuration);
-
-		TaskGroup group = tasks.createTaskGroup("Main", 2, 100, true);
+		Compute compute = new StandardCompute();
+		ComputeGroup group = compute.createComputeGroup("Main", 2, 100, true);
 
 		// Ad hoc task from Runnable lambda
 		Task task = group.asTask(() -> {
@@ -94,14 +90,12 @@ public class TasksTest
 		log.trace("runStructuredTasks");
 		log.start("runStructuredTasks");
 
-		Configuration configuration = Configuration.create();
-
 		// Easily create a Tasks managing task execution
-		Tasks tasks = new StandardTasks(configuration);
+		Compute compute = new StandardCompute();
 
 		// Create groups
-		TaskGroup mainGroup = tasks.createTaskGroup("Main", 1, 100, false);
-		TaskGroup workerGroup = tasks.createTaskGroup("Workers", 2, 100, true);
+		ComputeGroup mainGroup = compute.createComputeGroup("Main", 1, 100, false);
+		ComputeGroup workerGroup = compute.createComputeGroup("Workers", 2, 100, true);
 
 		float[] data1 = new float[]{0.0f, 1.0f, 2.0f, 3.0f};
 		float[] data2 = new float[]{0.0f, 2.0f, 4.0f, 6.0f};
@@ -149,7 +143,7 @@ public class TasksTest
 			}));
 
 		// Wait for all tasks to be done and end properly
-		tasks.endGracefully();
+		compute.endGracefully();
 
 		log.stopTrace("runStructuredTasks");
 	}

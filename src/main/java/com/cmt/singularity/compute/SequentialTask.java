@@ -2,7 +2,7 @@
 /*
  * The MIT License
  *
- * Copyright 2026 Cryomoretan GmbH.
+ * Copyright 2025 Cryomoretan GmbH.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,47 +23,52 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity;
+package com.cmt.singularity.compute;
 
 import com.cmt.singularity.assertion.Assert;
+import com.cmt.singularity.compute.StandardComputeGroup.StandardTaskWrapperTask;
 
 /**
+ * This task calls the given list of tasks in order
  *
  * @author Benjamin Schiller
  */
-public final class SingularityClass implements ConfigurationAccessor
+public class SequentialTask implements Task
 {
 
-	public final static Assert assertion = Assert.getAssert(SingularityClass.class.getName());
+	private final static Assert assertion = Assert.getAssert(SequentialTask.class.getName());
 
-	/**
-	 * Key in config for singularityClass
-	 */
-	public final static String KEY = "com.cmt.singularity.singularityClass";
+	protected final Task[] tasks;
+	protected final ComputeGroup group;
+	protected final boolean logTasks;
 
-	/**
-	 * Default in config for singularityClass
-	 */
-	public final static Class<? extends Singularity> DEFAULT = StandardSingularity.class;
-
-	public static Class<? extends Singularity> get(Configuration configuration)
+	public SequentialTask(ComputeGroup group, boolean logTasks, Task... tasks)
 	{
-		assertion.assertNotNull(configuration, "configuration != null");
+		assertion.assertNotNull(group, "group != 0");
+		assertion.assertNotEmpty(tasks, "tasks not empty");
 
-		return configuration.getAs(KEY, DEFAULT, Class.class);
+		this.group = group;
+		this.logTasks = logTasks;
+		this.tasks = tasks;
 	}
 
-	public static void set(Configuration configuration, Class<? extends Singularity> singularityClass)
+	/**
+	 * Execute all tasks sequential in order. between each task the group is checked if it is ending then execution is
+	 * not continued.
+	 */
+	@Override
+	public void execute()
 	{
-		assertion.assertNotNull(configuration, "configuration != null");
-		assertion.assertNotNull(singularityClass, "singularityClass != null");
+		for (Task task : tasks) {
 
-		configuration.set(KEY, singularityClass);
-	}
+			// Create and execute wrapper (allowing logging)
+			StandardTaskWrapperTask wrapper = new StandardComputeGroup.StandardTaskWrapperTask(task, null, null, logTasks);
+			wrapper.execute();
 
-	@SuppressWarnings("unused")
-	private SingularityClass()
-	{
-		// NEVER INSTANTIATED
+			// End early if the group is ending
+			if (group.isEnding()) {
+				break;
+			}
+		}
 	}
 }

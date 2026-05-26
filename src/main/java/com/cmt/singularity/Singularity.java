@@ -25,9 +25,8 @@
 //</editor-fold>
 package com.cmt.singularity;
 
-import com.cmt.singularity.assertion.Assert;
-import com.cmt.singularity.tasks.Tasks;
-import java.lang.reflect.InvocationTargetException;
+import com.cmt.singularity.compute.Compute;
+import com.cmt.singularity.memory.Memory;
 
 /**
  *
@@ -36,28 +35,7 @@ import java.lang.reflect.InvocationTargetException;
 public interface Singularity
 {
 
-	public final static Assert assertion = Assert.getAssert(Singularity.class.getName());
+	Compute getCompute();
 
-	public static Singularity create(Configuration configuration)
-	{
-		assertion.assertNotNull(configuration, "configuration != null");
-		assertion.assertNotNull(SingularityClass.get(configuration), "configuration.getSingularityClass() != null");
-
-		try {
-
-			Singularity singularity = SingularityClass.get(configuration).getConstructor().newInstance();
-
-			singularity.init(configuration);
-
-			return singularity;
-		} catch (IllegalAccessException | IllegalArgumentException | InstantiationException | NoSuchMethodException | InvocationTargetException ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-
-	void init(Configuration configuration);
-
-	Tasks getTasks();
-
-	Configuration getConfiguration();
+	Memory getMemory();
 }

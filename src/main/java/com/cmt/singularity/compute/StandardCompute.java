@@ -23,9 +23,8 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
+package com.cmt.singularity.compute;
 
-import com.cmt.singularity.Configuration;
 import com.cmt.singularity.assertion.Assert;
 import de.s42.log.LogManager;
 import de.s42.log.Logger;
@@ -36,27 +35,22 @@ import java.util.concurrent.ConcurrentSkipListSet;
  *
  * @author Benjamin Schiller
  */
-public class StandardTasks implements Tasks
+public final class StandardCompute implements Compute
 {
 
 	@SuppressWarnings("unused")
-	private final static Logger log = LogManager.getLogger(StandardTasks.class.getName());
+	private final static Logger log = LogManager.getLogger(StandardCompute.class.getName());
 
-	private final static Assert assertion = Assert.getAssert(StandardTasks.class.getName());
+	private final static Assert assertion = Assert.getAssert(StandardCompute.class.getName());
 
-	protected final Set<StandardTaskGroup> groups = new ConcurrentSkipListSet<>();
+	private final Set<StandardComputeGroup> groups = new ConcurrentSkipListSet<>();
 
-	protected final Configuration configuration;
-
-	public StandardTasks(Configuration configuration)
+	public StandardCompute()
 	{
-		assertion.assertNotNull(configuration, "configuration != null");
-
-		this.configuration = configuration;
 	}
 
 	@Override
-	public TaskGroup createTaskGroup(String name, int poolSize, int queueSize, boolean daemon)
+	public ComputeGroup createComputeGroup(String name, int poolSize, int queueSize, boolean daemon)
 	{
 		assertion.assertNotNull(name, "name != null");
 		assertion.assertTrue(poolSize > 0, "poolSize > 0");
@@ -64,7 +58,7 @@ public class StandardTasks implements Tasks
 
 		log.trace("createTaskGroup:enter");
 
-		StandardTaskGroup group = new StandardTaskGroup(configuration, name, poolSize, queueSize, daemon);
+		StandardComputeGroup group = new StandardComputeGroup(name, poolSize, queueSize, daemon);
 
 		groups.add(group);
 
@@ -79,7 +73,7 @@ public class StandardTasks implements Tasks
 		log.trace("join:enter");
 
 		// Create copy to make sure the list does not change while iterating to make behavior easier to reason
-		for (TaskGroup group : new ArrayList<>(groups)) {
+		for (ComputeGroup group : new ArrayList<>(groups)) {
 			group.join();
 		}
 
@@ -95,12 +89,12 @@ public class StandardTasks implements Tasks
 		log.trace("endGracefully:enter");
 
 		// Create copy to make sure the list does not change while iterating to make behavior easier to reason
-		List<StandardTaskGroup> g = new ArrayList<>(groups);
+		List<StandardComputeGroup> g = new ArrayList<>(groups);
 
 		TaskBarrier[] barriers = new TaskBarrier[g.size()];
 
 		int i = 0;
-		for (StandardTaskGroup group : g) {
+		for (StandardComputeGroup group : g) {
 			barriers[i] = group.endGracefully();
 			i++;
 		}
@@ -113,15 +107,15 @@ public class StandardTasks implements Tasks
 	}
 
 	@Override
-	public Optional<TaskGroup> getTaskGroupByName(String name)
+	public Optional<ComputeGroup> getComputeGroupByName(String name)
 	{
 		assertion.assertNotNull(name, "name != null");
 
-		return Optional.ofNullable((StandardTaskGroup) groups.stream().filter((tg) -> tg.getName().equals(name)).findAny().orElse(null));
+		return Optional.ofNullable(groups.stream().filter((tg) -> tg.getName().equals(name)).findAny().orElse(null));
 	}
 
 	@Override
-	public Set<TaskGroup> getTaskGroups()
+	public Set<ComputeGroup> getComputeGroups()
 	{
 		return Collections.unmodifiableSet(new HashSet<>(groups));
 	}
@@ -134,10 +128,10 @@ public class StandardTasks implements Tasks
 	@Override
 	public boolean isEnding()
 	{
-		Set<TaskGroup> g = getTaskGroups();
+		Set<ComputeGroup> g = getComputeGroups();
 
 		// If 1 is not ending -> return false
-		for (TaskGroup group : g) {
+		for (ComputeGroup group : g) {
 			if (!group.isEnding()) {
 				return false;
 			}
@@ -154,10 +148,10 @@ public class StandardTasks implements Tasks
 	@Override
 	public boolean isEnded()
 	{
-		Set<TaskGroup> g = getTaskGroups();
+		Set<ComputeGroup> g = getComputeGroups();
 
 		// If 1 is not ending -> return false
-		for (TaskGroup group : g) {
+		for (ComputeGroup group : g) {
 			if (!group.isEnded()) {
 				return false;
 			}

@@ -23,7 +23,7 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
+package com.cmt.singularity.compute;
 
 import java.util.concurrent.Callable;
 
@@ -33,7 +33,7 @@ import java.util.concurrent.Callable;
  *
  * @author Benjamin Schiller
  */
-public interface TaskGroup
+public interface ComputeGroup
 {
 
 	/**
@@ -57,7 +57,7 @@ public interface TaskGroup
 	 * @param callable
 	 * @return
 	 */
-	Task asTask(Callable callable);
+	Task asTask(Callable<?> callable);
 
 	/**
 	 * Add a list of tasks to be executed in sequentially in order by this task group.
@@ -65,7 +65,26 @@ public interface TaskGroup
 	 * @param tasks
 	 * @return
 	 */
-	TaskGroup sequential(Task... tasks);
+	ComputeGroup sequential(Task... tasks);
+
+	/**
+	 * Add a list of tasks to be executed sequentially by this task group before the returned barrier is arrived. All
+	 * tasks in this list have returned from their execute() method before the barrier is arriving.
+	 *
+	 * @param tasks
+	 * @return
+	 */
+	TaskBarrier sequentialBefore(Task... tasks);
+
+	/**
+	 * Executes the given tasks in sequence guarantueed after the arrival of the given barrier. The tasks may not block
+	 * the execution of this task group until then.
+	 *
+	 * @param barrier
+	 * @param tasks
+	 * @return
+	 */
+	ComputeGroup sequentialAfter(TaskBarrier barrier, Task... tasks);
 
 	/**
 	 * Add a list of tasks to be executed in parallel by this task group.
@@ -73,7 +92,7 @@ public interface TaskGroup
 	 * @param tasks
 	 * @return
 	 */
-	TaskGroup parallel(Task... tasks);
+	ComputeGroup parallel(Task... tasks);
 
 	/**
 	 * Add a list of tasks to be executed in parallel by this task group before the returned barrier is arrived. All
@@ -85,14 +104,14 @@ public interface TaskGroup
 	TaskBarrier parallelBefore(Task... tasks);
 
 	/**
-	 * Executes the given tasks guarantueed after the arrival of the given barrier. The tasks may not block the
-	 * execution of this task group until then.
+	 * Executes the given tasks in parallel guarantueed after the arrival of the given barrier. The tasks may not block
+	 * the execution of this task group until then.
 	 *
 	 * @param barrier
 	 * @param tasks
 	 * @return
 	 */
-	TaskGroup parallelAfter(TaskBarrier barrier, Task... tasks);
+	ComputeGroup parallelAfter(TaskBarrier barrier, Task... tasks);
 
 	/**
 	 * Waits till ALL tasks in that group have been processed - means no tasks in queue and all tasks exited their
@@ -100,7 +119,7 @@ public interface TaskGroup
 	 *
 	 * @return
 	 */
-	TaskGroup join();
+	ComputeGroup join();
 
 	/**
 	 * Ends this group returning a barrier that is arrived after the group has ended.

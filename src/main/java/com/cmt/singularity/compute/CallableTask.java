@@ -23,42 +23,37 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity;
+package com.cmt.singularity.compute;
 
-import com.cmt.singularity.compute.Compute;
-import com.cmt.singularity.compute.StandardCompute;
-import com.cmt.singularity.memory.Memory;
-import com.cmt.singularity.memory.StandardMemory;
+import com.cmt.singularity.assertion.Assert;
+import java.util.concurrent.Callable;
 
 /**
+ * This task is a wrapper for callables.
  *
  * @author Benjamin Schiller
  */
-public final class StandardSingularity implements Singularity
+public class CallableTask implements Task
 {
 
-	private final Compute compute;
+	private final static Assert assertion = Assert.getAssert(CallableTask.class.getName());
 
-	private final Memory memory;
+	protected final Callable<?> callable;
 
-	public StandardSingularity()
+	public CallableTask(Callable<?> callable)
 	{
-		compute = new StandardCompute();
+		assertion.assertNotNull(callable, "callable != null");
 
-		memory = new StandardMemory();
-	}
-
-	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
-	@Override
-	public Compute getCompute()
-	{
-		return compute;
+		this.callable = callable;
 	}
 
 	@Override
-	public Memory getMemory()
+	public void execute()
 	{
-		return memory;
+		try {
+			callable.call();
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
 	}
-	// "Getters/Setters" </editor-fold>
 }

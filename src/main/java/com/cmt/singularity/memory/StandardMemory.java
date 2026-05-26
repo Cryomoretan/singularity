@@ -2,7 +2,7 @@
 /*
  * The MIT License
  *
- * Copyright 2025 Cryomoretan GmbH.
+ * Copyright 2026 Cryomoretan GmbH.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,19 +23,27 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
+package com.cmt.singularity.memory;
 
 /**
- * Allows the execution of a work unit.
  *
  * @author Benjamin Schiller
  */
-@FunctionalInterface
-public interface Task
+public final class StandardMemory implements Memory
 {
 
-	/**
-	 * Execute this task.
-	 */
-	void execute();
+	protected final MemoryBlock transientBlock;
+
+	public StandardMemory()
+	{
+		this.transientBlock = new StandardMemoryBlock();
+	}
+
+	// <editor-fold desc="Getters/Setters" defaultstate="collapsed">
+	@Override
+	public MemoryBlock getTransient()
+	{
+		return transientBlock;
+	}
+	// "Getters/Setters" </editor-fold>
 }

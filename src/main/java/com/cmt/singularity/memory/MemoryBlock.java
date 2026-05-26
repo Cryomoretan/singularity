@@ -2,7 +2,7 @@
 /*
  * The MIT License
  *
- * Copyright 2026 Cryomoretan GmbH.
+ * Copyright 2025 Cryomoretan GmbH.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,48 +23,56 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
-
-import com.cmt.singularity.Configuration;
-import com.cmt.singularity.ConfigurationAccessor;
-import com.cmt.singularity.assertion.Assert;
+package com.cmt.singularity.memory;
 
 /**
  *
  * @author Benjamin Schiller
  */
-public final class TaskGroupLog implements ConfigurationAccessor
+public interface MemoryBlock
 {
 
-	public final static Assert assertion = Assert.getAssert(TaskGroupLog.class.getName());
+	void set(String key, Object value);
 
-	/**
-	 * Key in config for taskGroupLog
-	 */
-	public static final String KEY = "com.cmt.singularity.tasks.taskGroupLog";
+	void setFixed(String key, Object value);
 
-	/**
-	 * Default in config for taskGroupLog
-	 */
-	public static final boolean DEFAULT = false;
+	void setIfAbsent(String key, Object value);
 
-	public static boolean get(Configuration configuration)
-	{
-		assertion.assertNotNull(configuration, "configuration != null");
+	void setFixedIfAbsent(String key, Object value);
 
-		return configuration.getBoolean(KEY, DEFAULT);
-	}
+	Object get(String key);
 
-	public static void set(Configuration configuration, boolean taskGroupLog)
-	{
-		assertion.assertNotNull(configuration, "configuration != null");
+	Object get(String key, Object defaultValue);
 
-		configuration.set(KEY, taskGroupLog);
-	}
+	String getString(String key);
 
-	@SuppressWarnings("unused")
-	private TaskGroupLog()
-	{
-		// NEVER INSTANTIATED
-	}
+	String getString(String key, String defaultValue);
+
+	boolean getBoolean(String key);
+
+	boolean getBoolean(String key, boolean defaultValue);
+
+	int getInt(String key, int defaultValue);
+
+	int getInt(String key);
+
+	long getLong(String key);
+
+	long getLong(String key, long defaultValue);
+
+	float getFloat(String key);
+
+	float getFloat(String key, float defaultValue);
+
+	double getDouble(String key);
+
+	double getDouble(String key, double defaultValue);
+
+	short getShort(String key);
+
+	short getShort(String key, short defaultValue);
+
+	<ResultType> ResultType getAs(String key, Class<ResultType> type);
+
+	<ResultType> ResultType getAs(String key, ResultType defaultValue, Class<ResultType> type);
 }

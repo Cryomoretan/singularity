@@ -23,32 +23,34 @@
  * THE SOFTWARE.
  */
 //</editor-fold>
-package com.cmt.singularity.tasks;
+package com.cmt.singularity.vulkan;
 
 import com.cmt.singularity.assertion.Assert;
+import com.cmt.singularity.compute.Task;
+import de.s42.log.LogManager;
+import de.s42.log.Logger;
+import static org.lwjgl.glfw.GLFW.glfwInit;
+import static org.lwjgl.glfw.GLFWVulkan.glfwVulkanSupported;
 
 /**
- * This task i a wrapper for runnables.
+ * Creates a vulkan instance
  *
  * @author Benjamin Schiller
  */
-public class RunnableTask implements Task
+public class GlfwInit implements Task
 {
 
-	private final static Assert assertion = Assert.getAssert(RunnableTask.class.getName());
+	@SuppressWarnings("unused")
+	private final static Logger log = LogManager.getLogger(GlfwInit.class.getName());
 
-	protected final Runnable runnable;
-
-	public RunnableTask(Runnable runnable)
-	{
-		assertion.assertNotNull(runnable, "runnable != null");
-
-		this.runnable = runnable;
-	}
+	@SuppressWarnings("unused")
+	private final static Assert assertion = Assert.getAssert(GlfwInit.class.getName());
 
 	@Override
 	public void execute()
 	{
-		runnable.run();
+		assertion.assertTrue(glfwInit(), "Failed to initialize GLFW");
+
+		assertion.assertTrue(glfwVulkanSupported(), "GLFW failed to find the Vulkan loader");
 	}
 }
