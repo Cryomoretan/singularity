@@ -45,8 +45,18 @@ public final class StandardCompute implements Compute
 
 	private final Set<StandardComputeGroup> groups = new ConcurrentSkipListSet<>();
 
+	private final ComputeGroup mainGroup;
+
 	public StandardCompute()
 	{
+		// Create initial main group
+		mainGroup = createComputeGroup("Main", 1, 100, false);
+	}
+
+	@Override
+	public ComputeGroup getMainGroup()
+	{
+		return mainGroup;
 	}
 
 	@Override

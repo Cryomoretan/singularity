@@ -38,6 +38,14 @@ public interface Compute
 {
 
 	/**
+	 * Returns the main group which should be single threaded and not daemon (in classical program execution the main
+	 * thread).
+	 *
+	 * @return
+	 */
+	ComputeGroup getMainGroup();
+
+	/**
 	 * Creates and registers the compute group in this compute.
 	 *
 	 * @param name
@@ -64,8 +72,8 @@ public interface Compute
 	Optional<ComputeGroup> getComputeGroupByName(String name);
 
 	/**
-	 * Waits till ALL tasks in that group have been processed - means no tasks in queue and all tasks that were
-	 * processed exited their execute() method.
+	 * Waits till ALL tasks in that compute have been processed - means no tasks in queue and all tasks that were
+	 * processed exited their execute() method in ALL groups.
 	 */
 	void join();
 
